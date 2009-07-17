@@ -225,7 +225,7 @@ module Board
       end
    end
    def register
-      form.user_register! :method=>"post", :onsubmit=>"return true;" do
+      form.user_register! :method=>"post", :onsubmit=>"return validateRegForm();" do
          div.tableborder do
             div.maintitle :align=>'left' do
               img :src=>"images/nav_m.png", :alt => ">"
@@ -244,7 +244,7 @@ module Board
                      self << "Usernames must be between 3 and 32 characters long; spaces are allowed"
                   end
                   td.pformright do
-                  input.forminput :type=>"text", :size=>"32", :maxlength=>"32", :value=>"", :name=>"username"
+                  input.forminput :type=>"text", :size=>"32", :maxlength=>"32", :value=>"", :name=>"username", :id=>"username"
                   end
                end
                tr do
@@ -254,7 +254,7 @@ module Board
                      self << "Passwords must be between 3 and 32 characters long"
                   end
                   td.pformright do
-                  input.forminput :type=>"password", :size=>"32", :maxlength=>"32", :value=>"", :name=>"password"
+                  input.forminput :type=>"password", :size=>"32", :maxlength=>"32", :value=>"", :name=>"password", :id=>"password"
                   end
                end
                tr do
@@ -264,7 +264,7 @@ module Board
                      self << "It must match exactly."
                   end
                   td.pformright do
-                  input.forminput :type=>"password", :size=>"32", :maxlength=>"32", :value=>"", :name=>"password_check"
+                  input.forminput :type=>"password", :size=>"32", :maxlength=>"32", :value=>"", :name=>"password_check", :id=>"password_check"
                   end
                end
                tr do
@@ -274,7 +274,7 @@ module Board
                      self << "It must be a valid, working email address."
                   end
                     td.pformright do
-                    input.forminput :type=>"text", :size=>"32", :maxlength=>"32", :value=>"", :name=>"useremail"
+                    input.forminput :type=>"text", :size=>"32", :maxlength=>"32", :value=>"", :name=>"useremail", :id=>"useremail"
                   end
                end
             end

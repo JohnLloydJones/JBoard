@@ -471,7 +471,7 @@ module Board::Controllers
         name = @input.friend
         user = @facade.get_user name
         if user
-           @facade.send_system_message( [ member.name ], 
+           @facade.send_system_message( name, 
            "User #{@user.login} wants to be your friend.",
            "friend request for #{name}")
            @facade.commit
