@@ -1,0 +1,31 @@
+module MimeTypes
+    MIME_TYPES = {
+      ".pdf"          =>      "application/pdf",
+      ".ps"           =>      "application/postscript",
+      ".gz"           =>      "application/x-gzip",
+      ".swf"          =>      "application/x-shockwave-flash",
+      ".tar.gz"       =>      "application/x-tgz",
+      ".tgz"          =>      "application/x-tgz",
+      ".tar"          =>      "application/x-tar",
+      ".zip"          =>      "application/zip",
+      ".mp3"          =>      "audio/mpeg",
+      ".ogg"          =>      "audio/x-wav",
+      ".gif"          =>      "image/gif",
+      ".jpg"          =>      "image/jpeg",
+      ".jpeg"         =>      "image/jpeg",
+      ".png"          =>      "image/png",
+      ".css"          =>      "text/css",
+      ".html"         =>      "text/html",
+      ".htm"          =>      "text/html",
+      ".js"           =>      "text/javascript",
+      ".txt"          =>      "text/plain",
+      ".mpeg"         =>      "video/mpeg",
+      ".mpg"          =>      "video/mpeg",
+      ".mov"          =>      "video/quicktime",
+      ".qt"           =>      "video/quicktime",
+      ".avi"          =>      "video/x-msvideo",
+      ".bz2"          =>      "application/x-bzip",
+      ".tbz"          =>      "application/x-bzip-compressed-tar",
+      ".tar.bz2"      =>      "application/x-bzip-compressed-tar"
+    }
+end

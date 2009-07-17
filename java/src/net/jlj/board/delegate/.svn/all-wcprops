@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/Sandbox/!svn/ver/184/board/src/net/jlj/board/delegate
+END
+MemberDelegate.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/Sandbox/!svn/ver/252/board/src/net/jlj/board/delegate/MemberDelegate.java
+END
+BoardDelegate.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/Sandbox/!svn/ver/250/board/src/net/jlj/board/delegate/BoardDelegate.java
+END
+SettingsDelegate.java
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/Sandbox/!svn/ver/240/board/src/net/jlj/board/delegate/SettingsDelegate.java
+END
+AbstractDelegate.java
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/Sandbox/!svn/ver/245/board/src/net/jlj/board/delegate/AbstractDelegate.java
+END

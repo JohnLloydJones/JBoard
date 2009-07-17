@@ -1,0 +1,156 @@
+package net.jlj.board.persistence;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Stack;
+
+import javax.persistence.FlushModeType;
+import javax.persistence.TemporalType;
+
+public class MockQuery implements javax.persistence.Query
+{
+   Stack<ExpectedResult> results = new Stack<ExpectedResult> ();
+   Params  params = new Params ();
+   
+   public void pushResult (ExpectedResult r)
+   {
+      results.push (r);
+   }
+   
+   @Override
+   public int executeUpdate ()
+   {
+      // TODO Auto-generated method stub
+      return 0;
+   }
+
+   @SuppressWarnings("unchecked")
+   @Override
+   public List getResultList ()
+   {
+      return (List) results.pop().mResult;
+   }
+
+   @Override
+   public Object getSingleResult ()
+   {
+      return results.pop().mResult;
+   }
+
+   @Override
+   public javax.persistence.Query setFirstResult (int arg0)
+   {
+      return this;
+   }
+
+   @Override
+   public javax.persistence.Query setFlushMode (FlushModeType arg0)
+   {
+      return this;
+   }
+
+   @Override
+   public javax.persistence.Query setHint (String arg0, Object arg1)
+   {
+      return this;
+   }
+
+   @Override
+   public javax.persistence.Query setMaxResults (int arg0)
+   {
+      return this;
+   }
+
+   @Override
+   public javax.persistence.Query setParameter (String arg0, Object arg1)
+   {
+      return this;
+   }
+
+   @Override
+   public javax.persistence.Query setParameter (int arg0, Object arg1)
+   {
+      if (params == null)
+      {
+         params = new Params ();
+      }
+      params.add (new Param (arg0, arg1));
+      return this;
+   }
+
+   @Override
+   public javax.persistence.Query setParameter (String arg0, Date arg1, TemporalType arg2)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public javax.persistence.Query setParameter (String arg0, Calendar arg1, TemporalType arg2)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public javax.persistence.Query setParameter (int arg0, Date arg1, TemporalType arg2)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public javax.persistence.Query setParameter (int arg0, Calendar arg1, TemporalType arg2)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+   /**
+    * Value object -- attributes are public; no behaviour. 
+    *
+    */
+   public static class Param
+   {
+      public int mIndex;
+      public Object mValue;
+      public Param (int idx, Object o)
+      {
+         mIndex = idx;
+         mValue = o;
+      }
+   }
+   /**
+    * Value object -- attributes are public; no behaviour. 
+    *
+    */
+   public static class ExpectedResult
+   {
+      public Param mArgs;
+      public Object mResult; 
+      
+      public ExpectedResult (Param args, Object result)
+      {
+         mArgs = args;
+         mResult = result;
+      }
+   }
+   
+   public static class Params 
+   {
+      private List<Param> args;
+      public Params ()
+      {
+         args = new ArrayList<Param> ();
+      }
+      public void add (Param p)
+      {
+         args.add (p);
+      }
+      public Param get (int n)
+      {
+         return args.get (n);
+      }
+   };
+}

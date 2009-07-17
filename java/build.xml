@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project default="jar" basedir=".">
+
+   <!-- Name of the project -->
+   <property name="project.name" value="Board"/>
+
+   <!-- Version of the project -->
+    <property name="project.version" value="1.0"/>
+
+    <!-- Name of the core library -->
+    <property name="jar.name" value="jboard"/>
+
+<!--
+    <property name="tomcat.home" value="${user.home}/bin/apache-tomcat-6.0.18"/>
+    <property name="openjpa.home" value="${user.home}/dev/openjpa/apache-openjpa-1.2.1"/>
+-->    
+    <!-- set global properties for this build -->
+
+    <property name="build.home" location="build" />
+    <property name="src.dir" location="${basedir}/src" />
+    <property name="build.classes" location="${build.home}/classes" />
+    <property name="test.classes" location="${build.home}/test/classes" />
+    <property name="dist.dir"  location="${basedir}/dist"/>
+    <property name="doc.dir" location="doc" />
+    <property name="lib.dir" location="${basedir}/lib" />
+    <property name="test.src.dir" location="${basedir}/test"/>
+    <property name="reports.tests" location="${build.home}/reports"/>
+	<property name="log4j.properties" value="${lib.dir}/log4j.properties" />
+    <property name="compile.debug" value="true" />
+    <property file="build.properties"/>
+
+
+    <path id="classpath"
+        description="The classpath to use for compiling and enhancing">
+        <pathelement location="${build.home}"/>
+        <pathelement location="${build.classes}"/>
+        <fileset dir="${basedir}">
+            <include name="**/*.jar"/>
+            <include name="${lib.dir}/log4j.jar"/>
+            <include name="${lib.dir}/log4j.properties"/>
+        </fileset>
+<!--    	
+        <fileset dir="${openjpa.home}/lib">
+            <include name="*.jar"/>
+        </fileset>
+-->        
+    </path>
+	  <path id="test.classpath">
+	    <pathelement location="${test.classes}"/>
+	    <path refid="classpath"/>
+	  </path>
+	  <path id="enhance.classpath">
+	    <pathelement location="${lib.dir}"/>
+	    <path refid="classpath"/>
+	  </path>
+
+    <target name="clean" description="Clean up compiled files">
+        <delete includeemptydirs="yes">
+            <fileset dir="${build.home}">
+                <include name="*.class"/>
+                <include name="*.log"/>
+            </fileset>
+        </delete>
+    </target>
+
+    <target name="compile" depends="pre-compile"
+        description="Compile the example java files">
+        <javac srcdir="${src.dir}" 
+               classpathref="classpath"
+               destdir="${build.classes}"
+               debug="${compile.debug}"
+               optimize="${compile.optimize}"
+               deprecation="${compile.deprecation}"
+               includes="**/*.java"/>
+    </target>
+    <target name="test.compile" depends="pre-compile"
+        description="Compile the example java files">
+        <javac srcdir="${test.src.dir}" 
+               classpathref="test.classpath"
+               destdir="${test.classes}"
+               debug="${compile.debug}"
+               optimize="${compile.optimize}"
+               deprecation="${compile.deprecation}"
+               includes="**/*.java"/>
+    </target>
+
+    <!-- this target can be overridden by the sub-build -->
+    <target name="pre-compile" description="Pre-compilation phase">
+       <mkdir dir="${build.home}/classes"/>
+       <mkdir dir="${build.home}/test/classes"/>
+       <mkdir dir="${dist.dir}/lib"/>
+       <mkdir dir="${reports.tests}"/>
+    </target>
+    
+	<target name="enhance" depends="compile">
+	    <property name="enhance.classpath" refid="enhance.classpath"/>
+	    <echo message="CLASSSPATH = ${enhance.classpath}" /> 
+        <!-- We need to copy the persistence.xml file from the src dir
+            to the build dir when we run enhancement -->
+        <copy includeemptydirs="false" todir="${build.home}">
+            <fileset dir="${src.dir}" excludes="**/*.launch, **/*.java"/>
+        </copy>
+        
+	  <!-- define the openjpac task; this can be done at the top of the    -->
+	  <!-- build.xml file, so it will be available for all targets      -->
+	  <taskdef name="openjpac" classpathref="enhance.classpath" classname="org.apache.openjpa.ant.PCEnhancerTask"/>
+	
+	  <!-- invoke enhancer on all .java files below the model directory -->
+	  <openjpac>
+	    <classpath refid="classpath"/>
+	    
+	    <fileset dir="${build.classes}">
+	      <include name="**/dom/*.class" />
+	    </fileset>
+	  </openjpac>
+	</target>
+	
+	<target name="jar" depends="test">
+       <!-- =================================================================== -->
+       <!-- Create the jar file                                                 -->
+       <!-- =================================================================== -->
+        <jar jarfile="${dist.dir}/lib/${jar.name}.jar">
+		    <fileset dir="${build.classes}">
+		      <include name="**/*.class" />
+		    </fileset>
+		    <fileset dir="${build.home}">
+               <include name="**/META-INF/orm.xml" />
+               <include name="**/META-INF/persistence.xml" />
+		    </fileset>
+          <manifest>
+            <attribute name="Built-By" value="${user.name}"/>
+             <section name="board">
+                <attribute name="Implementation-Title" value="JBoard delegates and Openjpa persistence"/>
+                <attribute name="Implementation-Version" value="${project.version}, ${TODAY}"/> 
+                <attribute name="Implementation-Vendor" value="Software 'As You Like It'"/>
+             	<attribute name="Implementation-Vendor-Id" value="net.jlj" /> 
+             </section>
+          </manifest>
+        </jar>            
+	
+	</target>
+	<target name="test" depends="enhance, test.compile">
+	    <property name="test.classpath" refid="test.classpath"/>
+	    <!-- <echo message="CLASSSPATH = ${test.classpath}" /> -->
+	    
+		<junit printsummary="yes" haltonfailure="yes">
+		    <classpath refid="test.classpath"/>
+		
+		  <formatter type="plain"/>
+		
+		  <batchtest fork="yes" todir="${reports.tests}">
+		    <fileset dir="${test.src.dir}">
+		      <include name="**/*Test*.java"/>
+		    </fileset>
+		  </batchtest>
+		</junit>
+    </target>
+</project>

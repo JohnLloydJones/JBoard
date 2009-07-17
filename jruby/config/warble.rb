@@ -1,0 +1,68 @@
+# Warbler web application assembly configuration file
+Warbler::Config.new do |config|
+  # Temporary directory where the application is staged
+  # config.staging_dir = "tmp/war"
+
+  # Application directories to be included in the webapp.
+  config.dirs = %w(lib)
+
+  # Additional files/directories to include, above those in config.dirs
+  config.includes = FileList["board.yaml"]
+
+  # Additional files/directories to exclude
+  # config.excludes = FileList["lib/tasks/*"]
+
+  # Additional Java .jar files to include.  Note that if .jar files are placed
+  # in lib (and not otherwise excluded) then they need not be mentioned here.
+  # JRuby and JRuby-Rack are pre-loaded in this list.  Be sure to include your
+  # own versions if you directly set the value
+  # config.java_libs += FileList["lib/java/*.jar"]
+  if ENV['JRUBY_RACK_SRC']
+    config.java_libs.delete_if {|f| f =~ /jruby-rack/}
+    config.java_libs += FileList["../../target/jruby-rack*.jar"]
+  end
+config.java_libs += FileList["../java/lib/*.jar"]
+config.java_libs += FileList["../java/dist/lib/jboard.jar"]
+
+  # Loose Java classes and miscellaneous files to be placed in WEB-INF/classes.
+  config.java_classes = FileList["properties/log4j.properties", "properties/openjpa.properties"]
+
+  # One or more pathmaps defining how the java classes should be copied into
+  # WEB-INF/classes. The example pathmap below accompanies the java_classes
+  # configuration above. See http://rake.rubyforge.org/classes/String.html#M000017
+  # for details of how to specify a pathmap.
+  # config.pathmaps.java_classes << "%{target/classes/,}"
+  config.pathmaps.java_classes << "%2d%s%{^properties/,}f"  
+
+  # Gems to be packaged in the webapp.  Note that Rails gems are added to this
+  # list if vendor/rails is not present, so be sure to include rails if you
+  # overwrite the value
+  # config.gems = ["activerecord-jdbc-adapter", "jruby-openssl"]
+  config.gems = ["camping", "crypt"]
+
+  # Include gem dependencies not mentioned specifically
+  config.gem_dependencies = true
+
+  # Files to be included in the root of the webapp.  Note that files in public
+  # will have the leading 'public/' part of the path stripped during staging.
+  config.public_html = FileList["styles/*", "scripts/*", "images/*"]
+
+  # Pathmaps for controlling how public HTML files are copied into the .war
+  # config.pathmaps.public_html = ["%{public/,}p"]
+
+  # Name of the war file (without the .war) -- defaults to the basename
+  # of RAILS_ROOT
+  config.war_name = "jboard"
+
+  # Value of RAILS_ENV for the webapp
+  config.webxml.rails.env = 'production'
+
+  # Control the pool of Rails runtimes. Leaving unspecified means
+  # the pool will grow as needed to service requests. It is recommended
+  # that you fix these values when running a production server!
+  # config.webxml.jruby.min.runtimes = 2
+  # config.webxml.jruby.max.runtimes = 4
+
+  # JNDI data source name
+  # config.webxml.jndi = 'jdbc/rails'
+end

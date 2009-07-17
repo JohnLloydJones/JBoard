@@ -1,0 +1,1 @@
+jruby -S warble war

@@ -1,0 +1,30 @@
+
+INSERT INTO `jboard`.`member` (id,created,created_by,description,locked,state,title,avatar,email,first_name,usr_grp,last_name,middle_name,login_name,passwrd,photo,reg_code,sig,tzone) VALUES (1,CURRENT_TIMESTAMP,'root',null,1,'unregistered',null,null,'root@local',null,'system',null,null,'root','(blank)',null,null,null,null);
+INSERT INTO `jboard`.`member` (id,created,created_by,description,locked,state,title,avatar,email,first_name,usr_grp,last_name,middle_name,login_name,passwrd,photo,reg_code,sig,tzone) VALUES (2,CURRENT_TIMESTAMP,'root',null,0,'registered','admin',null,'admin@local',null,'admin','Administrator',null,'admin','Zq2t2jHbIpNl3YQBrtyo1awZGLQpoTIvg03O8Mok9KQ=',null,null,null,null);
+INSERT INTO `jboard`.`member` (id,created,created_by,description,locked,state,title,avatar,email,first_name,usr_grp,last_name,middle_name,login_name,passwrd,photo,reg_code,sig,tzone) VALUES (3,CURRENT_TIMESTAMP,'root','Guest user',1,'unregistered',null,null,'guest.user@nomail.com','Guest','guest','User',null,'guest','nopassword',null,null,null,null);
+
+INSERT INTO `jboard`.`board` (id,created,created_by,description,locked,state,title) VALUES (4,CURRENT_TIMESTAMP,'root','Jboard',0,'active','main');
+
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (9,'Member has not registered','UNREGISTERED','STATE','unregistered');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (10,'Member has not completed registering','VALIDATING','STATE','validating');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (11,'Member is registered, but posts require moderating','MODERATED','STATE','moderated');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (12,'Member has registered','REGISTERED','STATE','registered');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (13,'Member has been banned','BANNED','STATE','banned');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (14,'Member has been deleted','DELETED','STATE','deleted');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (15,'Member has not completed registering','VALIDATING','LOGIN','validating');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (16,'Member is registered, but posts require moderating','MODERATED','LOGIN','moderated');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (17,'Member has registered','REGISTERED','LOGIN','registered');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (18,'User may not view or participate','HIDE','GROUP','hide');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (19,'User may view but not participate','GUEST','GROUP','guest');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (20,'User may participate (post)','MEMBER','GROUP','member');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (21,'User can access private areas','PRIVILEGED','GROUP','privileged');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (22,'User has administrator rights','ADMIN','GROUP','admin');
+
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (23,'Visible to everybody','PUBLIC','DISPLAY','public');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (24,'Visible to Privileged user only','PRIVATE','DISPLAY','private');
+INSERT INTO `jboard`.`meta_data` (id,description,data_key,data_type,data_value) VALUES (25,'Not visible at all','HIDDEN','DISPLAY','hidden');
+
+
+INSERT INTO `jboard`.`sequence` (id,name,value) VALUES (0,'jboardseq',40);
+
+

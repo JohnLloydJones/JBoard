@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+
+	<persistence-unit name="board" transaction-type="RESOURCE_LOCAL">
+        <non-jta-data-source>java:comp/env/jdbc/JBoardDB</non-jta-data-source> 
+        <mapping-file>META-INF/orm.xml</mapping-file>
+        <class>net.jlj.board.metadata.Metadata</class>
+        <class>net.jlj.board.dom.Event</class>
+        <class>net.jlj.board.dom.Topic</class>
+        <class>net.jlj.board.dom.Post</class>
+        <class>net.jlj.board.dom.Message</class>
+        <class>net.jlj.board.dom.Member</class>
+        <class>net.jlj.board.dom.Forum</class>
+        <class>net.jlj.board.dom.DomEntity</class>
+        <class>net.jlj.board.dom.Category</class>
+        <class>net.jlj.board.dom.Board</class>
+		<properties>
+		    <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema"/>
+            <property name="openjpa.jdbc.DBDictionary" value="oracle(maxEmbeddedBlobSize=-1,maxEmbeddedClobSize=-1)"/>
+	        <property name="openjpa.jdbc.DBDictionary" value="mysql(UseClobs=true)"/>
+	        <property name="openjpa.jdbc.DBDictionary" value="mysql(TableType=innodb)"/>
+            <property name="openjpa.Sequence" value="table(Table=sequence, Increment=10)"/>
+<!--	        
+		    <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
+			<property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
+-->		    
+            <property name="openjpa.ConnectionProperties" 
+                value="DriverClassName=oracle.jdbc.OracleDriver,
+                       Url=jdbc:oracle:thin:@ningal:1521:xe, 
+                  MaxActive=100, 
+                  MaxWait=10000, 
+                  TestOnBorrow=true, 
+                  Username=jrubyapp, 
+                  Password=jrubyapp"/>
+            <property name="openjpa.ConnectionFactoryName" value="jdbc/BoardDB"/>    
+
+<!--                  
+            <property name="openjpa.ConnectionProperties" 
+                value="DriverClassName=com.mysql.jdbc.Driver,
+                       Url=jdbc:mysql://localhost/jboard, 
+                  MaxActive=100, 
+                  MaxWait=10000, 
+                  TestOnBorrow=true, 
+                  Username=jboard, 
+                  Password=jboard"/>
+            <property name="openjpa.ConnectionFactoryName" value="jdbc/JBoardDB"/>    
+            <property name="openjpa.Sequence" value="table(Table=sequence, Increment=1)"/>
+-->            
+            <property name="openjpa.ConnectionDriverName" value="javax.sql.DataSource"/>
+			<property name="openjpa.Log" value="log4j"/>
+			
+		</properties>
+	</persistence-unit>
+</persistence>

@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/Sandbox/!svn/ver/170/board/test/net/jlj/board/persistence
+END
+MockQuery.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/Sandbox/!svn/ver/224/board/test/net/jlj/board/persistence/MockQuery.java
+END
+MockEntityManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/Sandbox/!svn/ver/225/board/test/net/jlj/board/persistence/MockEntityManager.java
+END
+MockEntityManagerFactory.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/Sandbox/!svn/ver/194/board/test/net/jlj/board/persistence/MockEntityManagerFactory.java
+END
+MockEntityTransaction.java
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/Sandbox/!svn/ver/157/board/test/net/jlj/board/persistence/MockEntityTransaction.java
+END
