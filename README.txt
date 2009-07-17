@@ -12,7 +12,7 @@ OpenJpa supported database (tested on Oracle 10g Express 10.2.0.1.0, MySql 5.0.7
 Technologies used:
 
 Java 6
-(J)Ruby 1.3
+JRuby 1.3
 JRuby-Rack 0.94 (connector to app server)
 OpenJpa 1.2.1 (ORM / Persistence)
 Pico Container (IOC / Dependency Injection)
