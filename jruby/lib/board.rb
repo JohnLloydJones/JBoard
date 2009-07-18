@@ -629,7 +629,6 @@ module Board::Controllers
         user = @facade.get_user user_login
         user.reg_code = nil
         user.state = 'moderated'
-        @facade.persist user
         @facade.commit
 
         redirect ('/login')
