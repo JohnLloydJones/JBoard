@@ -212,6 +212,7 @@ module Board::Controllers
           @facade.begin_tx
           @board.properties['smtp_host'] = @input.smtp_host 
           @board.properties['smtp_user'] = @input.smtp_user 
+          @board.properties['smtp_from'] = @input.smtp_from
           if @input.smtp_password != ' ~secret~ '
              password = @input.smtp_password
              password = encrypt( password ) if ! password.empty?
@@ -272,6 +273,8 @@ module Board::Controllers
               host = @board.properties['smtp_host'].split(':')
               board_properties['emailhost'] = host[0]
               board_properties['emailport'] = host.length > 1 ? host[1] : '25'   
+              board_properties['emailfrom'] = "#{board_properties['smtp_from']}"
+              board_properties['emailalias'] = "#{board_properties['board_name']} Admin"
               board_properties['emailuser'] = @board.properties['smtp_user']
               board_properties['emailpassword'] = @board.properties['smtp_password']
                  

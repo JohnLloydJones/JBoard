@@ -8,3 +8,18 @@ function validateLogin()
    }
    return valid;
 }
+
+function validateRegForm()
+{
+   var valid = true;
+   var valid = ($('username').value.trim().length > 2) && 
+               ($('password').value.trim().length > 2) &&
+               ($('password').value.trim() == $('password_check').value.trim());
+   if (!valid)
+   {
+      alert("Please enter your name and matching passwords correctly before continuing");
+      return;
+   }
+  
+   return valid;
+}

@@ -39,7 +39,7 @@ Message-Id: <#{time_now.to_i}@lloyd-jones.net>
 #{props['emailend']}
 END_OF_MESSAGE
 
-         puts "Sending email: #{subject} to #{to}"
+         puts "Sending email: #{subject} to #{to} from: #{props['emailalias']} <#{from}>"
          smtp = Net::SMTP.new(emailhost, emailport.to_i)
 #         smtp.set_debug_output $stdout
          smtp.start( emailhost, emailuser, emailpass, :login ) do |s|

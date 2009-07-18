@@ -189,6 +189,16 @@ module Board
                end
                tr do
                   td.pformleft do
+                     strong "Please enter the sender:"
+                     br
+                     self << "This is the email address that shows up as the sender."
+                  end
+                  td.pformright do
+                  input.forminput :type=>"text", :size=>"32", :maxlength=>"64", :value=>"#{@board.properties['smtp_from']}", :name=>"smtp_from"
+                  end
+               end
+               tr do
+                  td.pformleft do
                      strong "Please enter the password:"
                      br
                      self << "This is the password for the smtp user. Leave blank if your smtp server doesn't require login."
