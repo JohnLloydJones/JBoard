@@ -227,6 +227,27 @@ module Board
                   input.forminput :type=>"text", :size=>"32", :maxlength=>"255", :value=>"#{@board.properties['reg_answer']}", :name=>"reg_answer"
                   end
                end
+               tr do
+                  td.pformleft do
+                     strong "Newly created users will be:"
+                     br
+                     self << "Moderated users must wait for a moderator to approve their posts."
+                  end
+                  td.pformright do
+                     attrs = {:type=>"radio", :name=>"reg_state"}
+                     current_state = @board.properties['reg_state']
+                        
+                     label :for=>'reg_state_m' do
+                        self << "Moderated"
+                        input.forminput attrs.merge( {:id=>"reg_state_m", :value=>"moderated"} ).merge (current_state == 'moderated' ? {:checked=>'checked'} : {})
+                     end
+                     self << "&nbsp;&nbsp;"
+                     label :for=>'reg_state_r' do
+                        self << "Registered"
+                        input.forminput attrs.merge( {:id=>"reg_state_r", :value=>"registered"} ).merge (current_state == 'registered' ? {:checked=>'checked'} : {})
+                     end
+                  end
+               end
             end
             div.pformstrip :align=>"center" do
               input.forminput :value=>"Submit", :type=>"submit", :name=>"submit"

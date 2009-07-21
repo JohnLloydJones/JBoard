@@ -220,6 +220,7 @@ module Board::Controllers
           end
           @board.properties['reg_question'] = @input.reg_question 
           @board.properties['reg_answer'] = @input.reg_answer
+          @board.properties['reg_state'] = @input.reg_state
           @facade.commit
           return redirect "/personal/#{@user.uid}"
        end
@@ -628,7 +629,7 @@ module Board::Controllers
         @facade.begin_tx
         user = @facade.get_user user_login
         user.reg_code = nil
-        user.state = 'moderated'
+        user.state = @board.properties['reg_state'] || 'moderated'
         @facade.commit
 
         redirect ('/login')
