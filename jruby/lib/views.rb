@@ -354,9 +354,9 @@ module Board
      end
      def members
         div.breadcrumb! :align=>"left" do
-           img :src=>"#{app_root}/images/nav.png", :alt=>"&gt;"
+           img :src=>"/images/nav.png", :alt=>"&gt;"
            self << "&nbsp;"
-           a "Board Home", :href=>"#{app_root}/board"
+           a "Board Home", :href=>"/board"
            self << "&nbsp;-&gt;&nbsp;Members"
         end
         self << 'Not complete'
@@ -523,12 +523,12 @@ module Board
                        h3 "Board Quick Links"
                        @board.categories.each do |cat|
                           div.category do
-                             a "#{cat.title}", :href=>"#{app_root}/category/#{cat.get_id}"
+                             a "#{cat.title}", :href=>"/category/#{cat.get_id}"
                           end
                           ul.forums do
                              cat.forums.each do |forum|
                                 li do
-                                   a "#{forum.title}", :href=>"#{app_root}/forum/#{forum.get_id}"
+                                   a "#{forum.title}", :href=>"/forum/#{forum.get_id}"
                                 end
                              end
                           end
@@ -561,7 +561,7 @@ module Board
                     
                     div.feature do
                        h3 do
-                          img :src=>"#{app_root}/images/members.png"
+                          img :src=>"/images/members.png"
                           self << "&nbsp;Friends"
                        end
                     end
@@ -732,7 +732,7 @@ module Board
 #           p.expand :onclick=>"togglecategory(29, 1);", :align=>'right' do
 #             img :src=> "images/exp_minus.png", :title => "Collapse this category", :alt=> 'Collapse'
 #           end
-              img :src=>"#{app_root}/images/nav_m.png", :alt => ">"
+              img :src=>"/images/nav_m.png", :alt => ">"
               a category.title, :href=>"#{app_root}/category/#{category.get_id}"
            end
            table :width=>"100%", :border=>"0", :cellpadding=>"4", :cellspacing=>"1" do
@@ -762,7 +762,7 @@ module Board
                  end
                  tr do
                     td.row4 :align=>"center" do
-                       img :src=> 'images/nonew.png'
+                       img :src=> '/images/nonew.png'
                     end
                     td.row4 :align=>"left" do
                        strong do

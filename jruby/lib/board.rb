@@ -263,33 +263,40 @@ module Board::Controllers
         member.name = @input.username
         member.password = encrypt @input.password
         member.email = @input.useremail
-        member.state = 'validating'
         member.group = 'user'
-        reg_code = encrypt( @input.username )
-        member.reg_code = reg_code
+        if 'no email' == @board.properties['reg_email']
+           member.state = @board.properties['reg_state'] || 'moderated'
+        else
+           member.state = 'validating'
+           reg_code = encrypt( @input.username )
+           member.reg_code = reg_code
+        end
         @facade.persist member
         session['user_login'] = User.new @input.username
-        begin
-           if  @board.properties['smtp_host']
-              host = @board.properties['smtp_host'].split(':')
-              board_properties['emailhost'] = host[0]
-              board_properties['emailport'] = host.length > 1 ? host[1] : '25'   
-              board_properties['emailfrom'] = "#{board_properties['smtp_from']}"
-              board_properties['emailalias'] = "#{board_properties['board_name']} Admin"
-              board_properties['emailuser'] = @board.properties['smtp_user']
-              board_properties['emailpassword'] = @board.properties['smtp_password']
-                 
-              # Fix plus signs as they will be urldecoded to spaces.
-              url = "#{app_root}/confirm?reg_key=#{ reg_code.gsub( /\+/, "%2B" ) }"
-              sm = SendMail.new url
-              sm.send_email( board_properties, @input.useremail, 'New User', 'Confirm registration' )
+        if member.state == 'validating'
+           begin
+              if  @board.properties['smtp_host']
+                 board_properties = {}
+                 host = @board.properties['smtp_host'].split(':')
+                 board_properties['emailhost'] = host[0]
+                 board_properties['emailport'] = host.length > 1 ? host[1] : '25'   
+                 board_properties['emailfrom'] =     @board.properties['smtp_from']
+                 board_properties['emailalias'] =   "#{@board.properties['board_name']} Admin"
+                 board_properties['emailuser'] =     @board.properties['smtp_user']
+                 board_properties['emailpassword'] = @board.properties['smtp_password']
+                    
+                 # Fix plus signs as they will be urldecoded to spaces.
+                 url = "#{app_root}/confirm?reg_key=#{ reg_code.gsub( /\+/, "%2B" ) }"
+                 sm = SendMail.new url
+                 sm.send_email( board_properties, @input.useremail, 'New User', 'Confirm registration' )
+              end
+           rescue Exception => e
+              puts "send_email failed: #{ e } (#{ e.class })!"
+              @user.errors.add(:base, "Failed to send email to #{@input.useremail}.")
+              return render :register
            end
-           @facade.commit
-        rescue Exception => e
-           puts "send_email failed: #{ e } (#{ e.class })!"
-           @user.errors.add(:base, "Failed to send email to #{@input.useremail}.")
-           return render :register
         end
+        @facade.commit
         redirect ('/board')
      end
   end
@@ -621,11 +628,14 @@ module Board::Controllers
       include Encrypt
      def get
         reg_key = @input.reg_key
+        redirect ('/board') if reg_key.nil?
+        
         user_login = decrypt( reg_key ).strip
 
         session = env['java.servlet_request'].session true
         session['user_login'] = @user
 
+        @board = @facade.get_board
         @facade.begin_tx
         user = @facade.get_user user_login
         user.reg_code = nil
