@@ -1,0 +1,54 @@
+
+CATALINA_HOME = "/home/john/bin/apache-tomcat-6.0.18"
+
+task :default => [:deploy]
+task :deploy => [:start_server]  # make war and deploy to topcat
+task :all => [:jar, :deploy]     # make jar first
+
+# Stop server, if required. 
+task :stop_server do
+  puts "Stop tomcat..."
+   if tomcat_running?
+      sh "#{CATALINA_HOME}/bin/shutdown.sh" do |ok, res|
+         puts "Error could not stop tomcat" unless ok
+      end
+   else
+      puts "Tomcat was not running"
+   end
+end
+
+
+task :war => :stop_server do
+  puts "\nmake:\n"
+  sh "jruby -S warble"
+end
+
+task :copy => :war do
+   puts "deploy:\n"
+   cp "jboard.war", "#{CATALINA_HOME}/webapps/"
+end
+
+# Sometimes stopping tomcat takes a while; don't start unless it is actually stopped.
+task :start_server => :copy do
+   print "restart: "
+   10.times do
+      break unless tomcat_running?
+      sleep 2
+      print "."
+   end
+   puts ""
+   if tomcat_running?
+      puts 'ERROR: Tomcat is still running!'
+   else
+      puts `#{CATALINA_HOME}/bin/startup.sh`
+   end
+end
+
+task :jar do
+   puts 'ant -f ../java/build.xml'
+end
+
+# NB need a regex for grep that doesn't match itself; backslash dot does the trick.
+def tomcat_running?
+   '' != `ps ax | grep "catalina\\.startup\\.Bootstrap"`
+end
