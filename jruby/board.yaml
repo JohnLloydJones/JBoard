@@ -1,7 +1,7 @@
 
 board_name: JBoard
 
-board_version: 0.90.1
+board_version: 0.90.2
 
 emailpreamble: "Thank you for registering at the board. Before we can activate your account you need to visit the activation page given below to complete your registration. Please note - you must complete this last step to be able to post to this board. You will only need to visit the following url once to activate your account."
 
