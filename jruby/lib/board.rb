@@ -23,6 +23,9 @@ import 'net.jlj.board.Facade'
 
 Camping.goes :Board
 
+# Overload the service method of Camping to fix the root path, get user information and
+# create a Facade instance (needed to access the back end). After calling super(*a), it
+# tidily closes the facade. NB! By default that will roll back an open transaction.
 module UserSession
     def service(*a)
         m = /^(\/.*?)(?=\/)/.match(@root)
@@ -53,6 +56,7 @@ end
 Markaby::XHTMLTransitional.tagset[:th] += [:width, :height, :bgcolor]
 Markaby::XHTMLTransitional.doctype = ["-//W3C//DTD XHTML 1.0 Transitional//EN",
                                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"]
+# This ensure that the doctype gets emitted properly
 class Markaby::Builder
    def xhtml_html(&block)
       instruct! if @output_xml_instruction
@@ -60,10 +64,11 @@ class Markaby::Builder
       @streams.last.to_s + tag!(:html, :xmlns => "http://www.w3.org/1999/xhtml", "xml:lang" => "en", :lang => "en", &block)
    end
 end
-# ... and turn off the <?XML tag -- hurts IE -- and emit readable html while debugging
+# ... and turn off the <?XML tag -- that hurts IE -- and emit readable html while debugging
 Markaby::Builder.set(:output_xml_instruction, false)
 Markaby::Builder.set(:indent, 3) 
 
+# Module Board is the container for the application.
 module Board
     include UserSession
     include MimeTypes
@@ -79,6 +84,8 @@ module Board
     def app_root
       @app_root ||= "#{'http://' + @env.HTTP_HOST +  Board::APP_NAME}"
     end
+    # The user class is a light weight user object that is kept in the session. Before loging in
+    # the user is 'guest', a pre-defined user that has minimal privileges. 
     class User
       attr_accessor :login, :errors, :state, :group, :validated, :uid
       def initialize login
@@ -89,10 +96,17 @@ module Board
          @validated = false
          @uid = 0
       end
+      def add_error( attribute, message = nil )
+         @errors.add( attribute, message )
+      end
+      def clear_errors
+         @errors.clear
+      end
       def validated?
          @validated
       end
     end
+    # The Errors class is a convenience class used to store error messages. 
     class Errors
        attr_accessor :errors
        
@@ -100,7 +114,7 @@ module Board
          @errors = {}
        end
        
-       def add(attribute, message = nil)
+       def add(attribute, message)
          message ||= :invalid
          message = generate_message(attribute, message) if message.is_a?(Symbol)
          @errors ||= {}
@@ -133,7 +147,9 @@ module Board
        def generate_message(attribute, message = :invalid)
          message.to_s
        end
-    
+       def clear
+          @errors = {}
+       end
     end
 end
 
@@ -143,6 +159,7 @@ class Date
     end
 end
 
+#
 module Board::Controllers
   class Index < R '/'
     def get
@@ -170,7 +187,6 @@ module Board::Controllers
                 @user.group = member.group
                 @user.validated = true
                 @user.uid = member.get_id
-                session['user_login'] = @user
                 @state.user_name = member.name
                 target = "/personal/#{member.get_id}"
                 if member.name == 'admin'
@@ -183,10 +199,12 @@ module Board::Controllers
                 return redirect( target )
             else
                 @user = User.new 'guest'
-                @user.errors.add(:password, 'does not match the entered user name.')
-                session['user_login'] = @user
+                @user.add_error(:password, 'does not match the entered user name.')
             end
             render :login
+        ensure 
+           @user.clear_errors
+           session['user_login'] = @user
         end
     end
 

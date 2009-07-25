@@ -25,6 +25,7 @@ end
 
 task :copy => :war do
    puts "deploy:\n"
+   rmtree "#{CATALINA_HOME}/webapps/jboard"
    cp "jboard.war", "#{CATALINA_HOME}/webapps/"
 end
 

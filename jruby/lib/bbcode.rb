@@ -1,4 +1,5 @@
 #! /usr/bin/env ruby
+# Render BBCode as HTML. 
 module BBCode
    @@imageformats = 'png|bmp|jpg|gif'
    @@tags = {
@@ -148,6 +149,8 @@ module BBCode
          nil, nil,
          :image]
    }
+   # to_html takes a text string, a method (one of :enable, :disable) and an hash of tagnames. 
+   # Do not call this directly. Use the method added to the Strinh class.
    def self.to_html(text, method, tags)
       text.gsub!( '&', '&amp;' )
       text.gsub!( '<', '&lt;' )
@@ -187,6 +190,7 @@ module BBCode
    end
 end
 
+# Add the methods to the String class. Note that method is optional and defaults to :disable. 
 class String
    def bbcode_to_html(method = :disable, *tags)
       BBCode.to_html(self, method, tags)

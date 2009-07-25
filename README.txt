@@ -7,7 +7,7 @@ Required platform
 
 JEE web container (tested on Tomcat 6)
 Java JVM > 1.5 (tested on Java 1.6.0_14)
-OpenJpa supported database (tested on Oracle 10g Express 10.2.0.1.0, MySql 5.0.75, Postgres 8.4)
+OpenJpa supported database (tested on Oracle 10g Express 10.2.0.1.0, MySql 5.0.75, Postgres 8.4, Derby 10.5.1.1)
 
 Technologies used:
 

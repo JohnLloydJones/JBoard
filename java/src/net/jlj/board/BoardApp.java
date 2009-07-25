@@ -73,7 +73,7 @@ public class BoardApp
       pico.addComponent (Facade.class, Facade.class);
    }   
    
-   public static Properties loadProperties (String name)
+   private static Properties loadProperties (String name)
    {
       Properties props = new Properties();
       InputStream in = BoardApp.class.getClassLoader().getResourceAsStream("/" + name);
@@ -88,6 +88,20 @@ public class BoardApp
          System.out.println ("Could not open " + name + ": " +  e.getMessage ());
          throw new RuntimeException ("Could not open " + name + ": ", e);
       }
+      // Special handling for Derby. Must set derby.system.home to something sensible.
+      String dictionary = props.getProperty ("openjpa.jdbc.DBDictionary");
+      log.info ("using " + dictionary + " DBDictionary");
+      if (dictionary.startsWith ("derby"))
+      {
+         String dbHome = System.getProperty ("derby.system.home");
+         log.info ("derby.system.home is currently " + dbHome);
+         if (dbHome == null)
+         {
+            log.info ("set derby.system.home to " + System.getProperty ("user.home") + "/.jboard");
+            System.setProperty ("derby.system.home", System.getProperty ("user.home") + "/.jboard");
+         }
+      }
+      
       return props;
    }
 }
