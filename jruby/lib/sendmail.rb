@@ -34,7 +34,7 @@ Message-Id: <#{time_now.to_i}@lloyd-jones.net>
 
 #{props['emailpreamble']}
 
-#{props['emailactivate'] + @url}
+#{props['emailactivate']}
 
 #{props['emailend']}
 END_OF_MESSAGE

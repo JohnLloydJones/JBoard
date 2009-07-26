@@ -1,8 +1,10 @@
 
-CATALINA_HOME = "/home/john/bin/apache-tomcat-6.0.18"
+USER_HOME = "/home/john"
+CATALINA_HOME = USER_HOME + "/bin/apache-tomcat-6.0.18"
+JETTY_HOME = USER_HOME + "/dev/jetty-distribution-7.0.0.RC1"
 
 task :default => [:deploy]
-task :deploy => [:start_server]  # make war and deploy to topcat
+task :deploy => [:stop_server, :war, :copy, :start_server]  # make war and deploy to tomcat
 task :all => [:jar, :deploy]     # make jar first
 
 # Stop server, if required. 
@@ -18,19 +20,19 @@ task :stop_server do
 end
 
 
-task :war => :stop_server do
+task :war do
   puts "\nmake:\n"
   sh "jruby -S warble"
 end
 
-task :copy => :war do
+task :copy do
    puts "deploy:\n"
    rmtree "#{CATALINA_HOME}/webapps/jboard"
    cp "jboard.war", "#{CATALINA_HOME}/webapps/"
 end
 
 # Sometimes stopping tomcat takes a while; don't start unless it is actually stopped.
-task :start_server => :copy do
+task :start_server do
    print "restart: "
    10.times do
       break unless tomcat_running?

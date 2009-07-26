@@ -9,11 +9,11 @@ module Board
       include ::BBCode
       def layout
          xhtml_transitional do
-            link :rel=>"shortcut icon", :href=>"#{app_root}/images/favicon.ico", :type=>"image/x-icon"
+            link :rel=>"shortcut icon", :href=>"/images/favicon.ico", :type=>"image/x-icon"
             title "#{@title} :: #{board_properties['board_name']}"
             style  :type => 'text/css' do
                @styles.each do |f|
-                  self << "@import '#{app_root}/styles/#{f}';"
+                  self << "@import '#{self/"/"}styles/#{f}';"
                end if @styles
             end
             @scripts.each do |f|
@@ -239,12 +239,12 @@ module Board
                         
                      label :for=>'reg_state_m' do
                         self << "Moderated"
-                        input.forminput attrs.merge( {:id=>"reg_state_m", :value=>"moderated"} ).merge (current_state == 'moderated' ? {:checked=>'checked'} : {})
+                        input.forminput attrs.merge( {:id=>"reg_state_m", :value=>"moderated"} ).merge(current_state == 'moderated' ? {:checked=>'checked'} : {})
                      end
                      self << "&nbsp;&nbsp;"
                      label :for=>'reg_state_r' do
                         self << "Registered"
-                        input.forminput attrs.merge( {:id=>"reg_state_r", :value=>"registered"} ).merge (current_state == 'registered' ? {:checked=>'checked'} : {})
+                        input.forminput attrs.merge( {:id=>"reg_state_r", :value=>"registered"} ).merge(current_state == 'registered' ? {:checked=>'checked'} : {})
                      end
                   end
                end
@@ -363,7 +363,7 @@ module Board
 
         div.tableborder do
            div.maintitle :align=>'left', :id=>"" do
-              img :src=>"#{app_root}/images/nav_m.png", :alt => ">"
+              img :src=>"/images/nav_m.png", :alt => ">"
               self << "Member List"
            end
 
@@ -379,14 +379,14 @@ module Board
                   tr do
                     td.row4 do
                        strong do
-                          a member.name, :href=>"#{app_root}/personal/#{member.get_id}"
+                          a member.name, :href=>"/personal/#{member.get_id}"
                        end
                     end
                     td.row4 member.group
                     td.row4 member.created
                     td.row4 member.properties['num_posts']
                     td.row4 do
-                       img :src=>"#{app_root}/images/p_email.png", :alt=>'Email'
+                       img :src=>"/images/p_email.png", :alt=>'Email'
                     end
                   end
               end
@@ -733,7 +733,7 @@ module Board
 #             img :src=> "images/exp_minus.png", :title => "Collapse this category", :alt=> 'Collapse'
 #           end
               img :src=>"/images/nav_m.png", :alt => ">"
-              a category.title, :href=>"#{app_root}/category/#{category.get_id}"
+              a category.title, :href=>"/category/#{category.get_id}"
            end
            table :width=>"100%", :border=>"0", :cellpadding=>"4", :cellspacing=>"1" do
               tr do
@@ -819,13 +819,13 @@ module Board
                     self << " "
                  end
                  td :align=>"right", :width=>"80%" do
-                    a :href=>"#{app_root}/newcategory", :title=>"Add New Category" do
-                       img  :src=>"#{app_root}/images/c_new.png", :alt=>"New Category"
+                    a :href=>"/newcategory", :title=>"Add New Category" do
+                       img  :src=>"/images/c_new.png", :alt=>"New Category"
                     end
                  end
                  td :align=>"right", :width=>"80%" do
-                    a :href=>"#{app_root}/newforum", :title=>"Add New Forum" do
-                       img  :src=>"#{app_root}/images/f_new.png", :alt=>"New Forum"
+                    a :href=>"/newforum", :title=>"Add New Forum" do
+                       img  :src=>"/images/f_new.png", :alt=>"New Forum"
                     end
                  end
               end
@@ -839,7 +839,7 @@ module Board
         div.breadcrumb! :align=>"left" do
            img :src=>"/images/nav.png", :alt=>"&gt;"
            self << "&nbsp;"
-           a "Board Home", :href=>"#{app_root}/board"
+           a "Board Home", :href=>"/board"
            self << "&nbsp;-&gt;&nbsp;#{@category.title}"
         end
         render_category @category
@@ -870,9 +870,9 @@ module Board
         div.breadcrumb! :align=>"left" do
            img :src=>"/images/nav.png", :alt=>"&gt;"
            self << "&nbsp;"
-           a "Board Home", :href=>"#{app_root}/board"
+           a "Board Home", :href=>"/board"
            self << "&nbsp;-&gt;&nbsp;"
-           a "#{@category.title}", :href=>"#{app_root}/category/#{@category.get_id}"
+           a "#{@category.title}", :href=>"/category/#{@category.get_id}"
            self << "&nbsp;-&gt;&nbsp;#{@forum.title}"
         end
         
@@ -890,7 +890,7 @@ module Board
               end
               if %w{moderated registered}.include? @user.state
                  td :align=>"right", :width=>"80%" do
-                    a :href=>"#{app_root}/newtopic/#{@forum.get_id}" do
+                    a :href=>"/newtopic/#{@forum.get_id}" do
                        img  :src=>"../images/t_new.png", :alt=>"Add New Topic"
                     end
                  end
@@ -902,8 +902,8 @@ module Board
    #           p.expand :onclick=>"togglecategory(29, 1);", :align=>'right' do
    #             img :src=> "images/exp_minus.png", :title => "Collapse this category", :alt=> 'Collapse'
    #           end
-              img :src=>"#{app_root}/images/nav_m.png", :alt => ">"
-             a @forum.title, :href=>"#{app_root}/forum/#{@forum.get_id}"
+              img :src=>"/images/nav_m.png", :alt => ">"
+             a @forum.title, :href=>"/forum/#{@forum.get_id}"
            end
            table :width=>"100%", :border=>"0", :cellpadding=>"4", :cellspacing=>"1" do
               tr do
@@ -916,12 +916,12 @@ module Board
               @topics.each do |topic|
                  tr do
                     if topic.locked?
-                       td.row2 :width=>"32" do img :src=>'../images/locked.png', :alt=>'Locked' end
+                       td.row2 :width=>"32" do img :src=>'/images/locked.png', :alt=>'Locked' end
                     else
                        td.row2 " "
                     end
                     td.row2  :align=>"left" do
-                       strong { a topic.title, :href=>"#{app_root}/topic/#{topic.get_id}" }
+                       strong { a topic.title, :href=>"/topic/#{topic.get_id}" }
                        br
                        span.desc "#{topic.description}"
                     end
@@ -930,7 +930,7 @@ module Board
                     td.row2 :align=>"left" do
                        self << topic.last_post_date
                        br
-                       a 'Last Post By: ', :href=>"#{app_root}/topic/#{topic.get_id}#p#{topic.last_post_id}"
+                       a 'Last Post By: ', :href=>"/topic/#{topic.get_id}#p#{topic.last_post_id}"
                        self << topic.last_post_author
                     end
                  end
@@ -946,13 +946,13 @@ module Board
 
      def topic
         div.breadcrumb! :align=>"left" do
-           img :src=>"#{app_root}/images/nav.png", :alt=>"&gt;"
+           img :src=>"/images/nav.png", :alt=>"&gt;"
            self << "&nbsp;"
-           a "Board Home", :href=>"#{app_root}/board"
+           a "Board Home", :href=>"/board"
            self << "&nbsp;-&gt;&nbsp;"
-           a "#{@category.title}", :href=>"#{app_root}/category/#{@category.get_id}"
+           a "#{@category.title}", :href=>"/category/#{@category.get_id}"
            self << "&nbsp;-&gt;&nbsp;"
-           a "#{@forum.title}", :href=>"#{app_root}/forum/#{@forum.get_id}"
+           a "#{@forum.title}", :href=>"/forum/#{@forum.get_id}"
         end
         table :cellpadding=>"0", :cellspacing=>"0", :width=>"100%" do
            tr do
@@ -962,7 +962,7 @@ module Board
                     if @page.to_i == n+1
                        b "[#{n+1}]"
                     else
-                       a "#{n+1}", :href=>"#{app_root}/topic/#{@topic.get_id}?p=#{n+1}"
+                       a "#{n+1}", :href=>"/topic/#{@topic.get_id}?p=#{n+1}"
                     end
                  end
               end
@@ -998,7 +998,7 @@ module Board
              self << ",&nbsp;#{@topic.description}" if @topic.description
 
          end
-       input :type=>'hidden', :value=>"#{app_root}/topic/#{@topic.get_id}?p=#{@page}", :id=>"page_url", :name=>"page_url"
+       input :type=>'hidden', :value=>"/topic/#{@topic.get_id}?p=#{@page}", :id=>"page_url", :name=>"page_url"
        @posts.each do |post|
           render_post post
        end
@@ -1011,7 +1011,7 @@ module Board
             td :align=>"left" do
                a :name=>"p#{post.get_id}"
                if @user.validated && %w{moderated registered}.include?( post.properties['author'].state )
-                  a "#{post.properties['author'].name}", :href=>"#{app_root}/personal/#{post.properties['author'].get_id}"
+                  a "#{post.properties['author'].name}", :href=>"/personal/#{post.properties['author'].get_id}"
                else
                   self << post.created_by
                end
@@ -1036,8 +1036,8 @@ module Board
                          img :src=>'/images/p_edit.png', :alt=>'Edit Post'
                      end
                    end
-                   a :href=>"#{app_root}/quote/#{post.get_id}" do
-                      img :src=>'../images/p_quote.png', :alt=>'Quote Post'
+                   a :href=>"/quote/#{post.get_id}" do
+                      img :src=>'/images/p_quote.png', :alt=>'Quote Post'
                    end
                 end
               end

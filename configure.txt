@@ -26,6 +26,29 @@ Here is an example for Tomcat 6 using a MySql.
     
 </Context>
 
+For Derby (embedded) use these example lines:
+   username=""
+   password=""
+   driverClassName="org.apache.derby.jdbc.EmbeddedDriver"
+   url="jdbc:derby:JBoardDB;create=true"
+
+For Postgres use these:
+   username="jboard"
+   password="jboard"
+   driverClassName="org.postgresql.Driver"
+   url="jdbc:postgresql://localhost:5432/jboard"
+
+For Oracle use these:
+   username="jboard"
+   password="jboard"
+   driverClassName="oracle.jdbc.OracleDriver"
+   url="jdbc:oracle:thin:@ningal:1521:xe"
+
+In all cases, edit the database name as required. Embedded Derby requires no user name / password and creates
+the database automatically. For the other databases, you must supply the user name, password for the database 
+you have created. 
+
+
 You will need to tell openjpa which DBDictionary to use. You can do that in the persistence.xml file
 (requires a rebuild of the jboard.jar file) or, more conveniently in the openjpa.properties file. E.g:
 

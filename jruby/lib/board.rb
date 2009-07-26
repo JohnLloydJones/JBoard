@@ -29,6 +29,7 @@ Camping.goes :Board
 module UserSession
     def service(*a)
         m = /^(\/.*?)(?=\/)/.match(@root)
+#        puts "@root was #{@root}, #{m ? 'changing to ' + m[1] : 'no change needed'} "
         @root = m[1] if m      # fix for Camping quirk that expects the app to live at root
         session = env['java.servlet_request'].session true
         @state = session['state'] || Camping::H[]
@@ -74,16 +75,17 @@ module Board
     include MimeTypes
     
     STATIC_PATH = File.expand_path('../..', File.dirname(__FILE__))
-    APP_NAME = STATIC_PATH[/\/([^\/]+)$/]
     @@properties ||= YAML::load( File.open( STATIC_PATH + '/WEB-INF/board.yaml' ) )
-
+    puts "Read board.yaml from  #{STATIC_PATH + '/WEB-INF/board.yaml'}"
     def board_properties
        @@properties
     end
-    # app_root is obsolete -- remove any remaining references and delete.
-    def app_root
-      @app_root ||= "#{'http://' + @env.HTTP_HOST +  Board::APP_NAME}"
-    end
+# app_root is obsolete -- remove any remaining references and delete.
+#    APP_NAME = STATIC_PATH[/\/([^\/]+)$/]
+#    def app_root
+#      @app_root ||= "#{'http://' + @env.HTTP_HOST +  Board::APP_NAME}"
+#    end
+    
     # The user class is a light weight user object that is kept in the session. Before loging in
     # the user is 'guest', a pre-defined user that has minimal privileges. 
     class User
@@ -153,7 +155,7 @@ module Board
     end
 end
 
-class Date
+class Time
     def to_default_s
         strftime("%B %d, %Y at %H:%M")
     end
@@ -294,20 +296,23 @@ module Board::Controllers
         if member.state == 'validating'
            begin
               if  @board.properties['smtp_host']
-                 board_properties = {}
-                 host = @board.properties['smtp_host'].split(':')
-                 board_properties['emailhost'] = host[0]
-                 board_properties['emailport'] = host.length > 1 ? host[1] : '25'   
-                 board_properties['emailfrom'] =     @board.properties['smtp_from']
-                 board_properties['emailalias'] =   "#{@board.properties['board_name']} Admin"
-                 board_properties['emailuser'] =     @board.properties['smtp_user']
-                 board_properties['emailpassword'] = @board.properties['smtp_password']
-                    
                  # Fix plus signs as they will be urldecoded to spaces.
-                 url = "#{app_root}/confirm?reg_key=#{ reg_code.gsub( /\+/, "%2B" ) }"
+                 url = "#{@req_url.to_s[0..-9]}confirm?reg_key=#{ reg_code.gsub( /\+/, "%2B" ) }"
+                 props = {}
+                 host = @board.properties['smtp_host'].split(':')
+                 props['emailhost'] = host[0]
+                 props['emailport'] = host.length > 1 ? host[1] : '25'   
+                 props['emailfrom'] =     @board.properties['smtp_from']
+                 props['emailuser'] =     @board.properties['smtp_user'] || ''
+                 props['emailpassword'] = @board.properties['smtp_password'] || ''
+                 props['emailalias'] =   "#{board_properties['board_name']} Admin"
+                 props['emailpreamble'] = board_properties['emailpreamble']
+                 props['emailactivate'] = "#{board_properties['emailactivate']}#{ url }"
+                 props['emailend']      = board_properties['emailend']
+   
                  sm = SendMail.new url
-                 sm.send_email( board_properties, @input.useremail, 'New User', 'Confirm registration' )
-              end
+                 sm.send_email( props, @input.useremail, 'New User', 'Confirm registration' )
+                 end
            rescue Exception => e
               puts "send_email failed: #{ e } (#{ e.class })!"
               @user.errors.add(:base, "Failed to send email to #{@input.useremail}.")
@@ -320,7 +325,6 @@ module Board::Controllers
   end
   class Members < R '/members|/members(.*?)'
      def get key
-        puts "get w/key"
         @members = key.nil? ? @facade.get_all_members : @facade.get_members( "%"+key+"%" )
         @members.each do |member|
             member.properties['num_posts'] = @facade.get_number_of_posts member.name
@@ -346,7 +350,7 @@ module Board::Controllers
    # Ajax : returns text directly
    class UpdateMember < R '/update_member/(.*?)'
       def post id
-         puts "update_member/#{id}"
+         puts "#{@user.login}: update_member/#{id}"
          if @user.group != 'admin'
             return "Error: you must login as an admin to use this function."
          end
@@ -491,7 +495,7 @@ module Board::Controllers
         end
         @facade.commit
         
-        redirect("#{app_root}/personal/#{id}")
+        redirect("/personal/#{id}")
      end
   end
    # Ajax : returns text directly
@@ -840,7 +844,7 @@ module Board::Controllers
         @post = @facade.get_post @input.p_id.to_i
         @topic = @facade.get_topic_for_post @input.p_id.to_i
         url = "#{@input.page_url}#p#{@input.p_id}" 
-        @facade.report_post (@input.p_id.to_i, "Reported [url=#{url}]post[/url] in topic [b]#{@topic.title}[/b]\n by user #{@user.login}.\nReason given: #{@input.reason}")
+        @facade.report_post(@input.p_id.to_i, "Reported [url=#{url}]post[/url] in topic [b]#{@topic.title}[/b]\n by user #{@user.login}.\nReason given: #{@input.reason}")
         @facade.commit
         "OK: Thank you. Your report has been sent to the moderator(s)"
      end
@@ -857,7 +861,7 @@ module Board::Controllers
         @topic.remove_post @post
         @category.add_to_deleted @post
         @facade.commit
-        redirect "#{app_root}/topic/#{@topic.get_id}"
+        redirect "/topic/#{@topic.get_id}"
      end
   end
    class ApprovePost < R '/approve_post/(\d+)'
@@ -973,7 +977,7 @@ module Board::Controllers
         @facade.add_post(id.to_i, @input.postbody || "empty post")
         @facade.commit
 
-        redirect "#{app_root}/topic/#{@input.t_id}"
+        redirect "/topic/#{@input.t_id}"
      end
   end
   class QuotePost < R '/quote/(\d+)'
@@ -1023,12 +1027,12 @@ module Board::Controllers
          board.add_category category
          @facade.commit
 
-         redirect "#{app_root}/board"
+         redirect "/board"
       end
    end
    class NewForum < R '/newforum'
       def get
-         return redirect "#{app_root}/login" if @user.group != 'admin'
+         return redirect "/login" if @user.group != 'admin'
          @categories = @facade.get_board.get_categories
          @title = "new forum"
          render :new_forum
@@ -1043,7 +1047,7 @@ module Board::Controllers
          category.add_forum forum
          @facade.commit
         
-         redirect "#{app_root}/board"
+         redirect "/board"
       end
    end
    class RepairLastPosted < R '/repair_last_posted'
