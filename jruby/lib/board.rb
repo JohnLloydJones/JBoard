@@ -175,7 +175,7 @@ module Board::Controllers
             session['user_login'] = @user
             @user ||= User.new 'guest'
             @title = 'login'
-            @scripts << "validate.js"
+            @scripts << "validate.js" << "dom.js" << "httpclient.js"
             render :login
         end
         def post
@@ -218,6 +218,75 @@ module Board::Controllers
             redirect("./board")
         end
     end
+    
+    class ResetPassword < R '/reset_password'
+       include Encrypt
+       def get
+          reset_key = @input.reset_key
+          return redirect ('/board') if reset_key.nil?
+          
+          user_login = decrypt( reset_key ).strip
+          member = @facade.get_user user_login
+          return redirect ('/board') if member.nil?
+          
+          @facade.logged_on_user = user_login
+          
+          @user = User.new member.name
+          @user.state = member.state
+          @user.group = member.group
+          @user.validated = true
+          @user.uid = member.get_id
+          @state.user_name = member.name
+
+          session = env['java.servlet_request'].session true
+          session['user_login'] = @user
+             
+          @scripts << 'validate.js' << 'httpclient.js'
+          render :reset_password
+       end
+       def post
+          @board = @facade.get_board
+          if  @board.properties['smtp_host']
+             begin
+                
+                user = @facade.get_user_by_email(@input.useremail)
+                if user.nil? || @input.username != user.name 
+                   return "Problem: Could not match the user to the given email address."
+                end
+                reset_code = encrypt( @input.username )
+                # Fix plus signs as they will be urldecoded to spaces.
+                url = "#{@req_url.to_s}?reset_key=#{ reset_code.gsub( /\+/, "%2B" ) }"
+                props = {}
+                host = @board.properties['smtp_host'].split(':')
+                props['emailhost'] = host[0]
+                props['emailport'] = host.length > 1 ? host[1] : '25'   
+                props['emailfrom'] =     @board.properties['smtp_from']
+                props['emailuser'] =     @board.properties['smtp_user'] || ''
+                props['emailpassword'] = @board.properties['smtp_password'] || ''
+                props['emailalias'] =   "#{board_properties['board_name']} Admin"
+                   
+                props['emailbody'] =<<END_OF_BODY
+Please follow the link below to reset your password. 
+                      
+Visit the reset password page: #{ url }                   
+                   
+If you cannot click the link, copy it and then paste it into your browser. If you have not requested a password reset using this email address, just ignore this email. No further action is required.
+
+END_OF_BODY
+                   
+                sm = SendMail.new( url )
+                sm.send_email( props, @input.useremail, "#{board_properties['board_name']} User", 'Reset password request' )
+                "OK: An email has been sent to you. When you receive it follow the provided link which will allow you to enter a new password."
+             rescue Exception => e
+                puts "send_email failed: #{ e } (#{ e.class })!"
+                return "Problem: Failed to send email to #{@input.useremail}."
+             end
+          else
+             "Sorry: this board is not configured for email. Please contact the board admin directly."
+          end
+       end
+    end
+    
     class UpdateSettings < R '/board_settings'
        include Encrypt
        def get
@@ -306,9 +375,14 @@ module Board::Controllers
                  props['emailuser'] =     @board.properties['smtp_user'] || ''
                  props['emailpassword'] = @board.properties['smtp_password'] || ''
                  props['emailalias'] =   "#{board_properties['board_name']} Admin"
-                 props['emailpreamble'] = board_properties['emailpreamble']
-                 props['emailactivate'] = "#{board_properties['emailactivate']}#{ url }"
-                 props['emailend']      = board_properties['emailend']
+                    
+                 props['emailbody'] =<<END_OF_BODY
+#{ board_properties['emailpreamble'] }
+                 
+#{ board_properties['emailactivate'] }#{ url }                   
+              
+#{ board_properties['emailend'] }                   
+END_OF_BODY
    
                  sm = SendMail.new url
                  sm.send_email( props, @input.useremail, 'New User', 'Confirm registration' )
@@ -594,6 +668,30 @@ module Board::Controllers
              puts $!
           end
           ret
+      end
+   end
+   class UpdatePassword < R '/update_password'
+      include Encrypt
+      def post
+         ret = "Error: failed to change password for #{@user.login}"
+         password = @input.password
+         password_check = @input.password_check
+         
+         begin
+            if password == password_check
+               @facade.begin_tx
+               user = @facade.get_user( @user.login )
+               user.password = encrypt( password )
+               @facade.commit
+               ret = "OK: Updated your password successfully"
+            else
+               ret = "Problem: could not change password. passwords didn't match."
+            end
+         rescue
+            ret = "Error: password not changed!"
+            puts $!
+         end
+         ret
       end
    end
    class ChangeAvatar < R '/changeAvatar'

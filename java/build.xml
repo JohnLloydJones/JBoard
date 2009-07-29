@@ -17,12 +17,13 @@
 -->    
     <!-- set global properties for this build -->
 
-    <property name="build.home" location="build" />
+    <property name="build.home" location="${basedir}/build" />
+	<property name="project.home" location="${basedir}/.." />
     <property name="src.dir" location="${basedir}/src" />
     <property name="build.classes" location="${build.home}/classes" />
     <property name="test.classes" location="${build.home}/test/classes" />
     <property name="dist.dir"  location="${basedir}/dist"/>
-    <property name="doc.dir" location="doc" />
+    <property name="doc.dir" location="${basedir}/doc" />
     <property name="lib.dir" location="${basedir}/lib" />
     <property name="test.src.dir" location="${basedir}/test"/>
     <property name="reports.tests" location="${build.home}/reports"/>
@@ -156,4 +157,16 @@
 		  </batchtest>
 		</junit>
     </target>
+	
+    <!-- =================================================================== -->
+    <!-- Archive the source files                                            -->
+    <!-- =================================================================== -->
+    <target name="source" depends="compile" description="Generate a jar file containg the source files">
+        <jar jarfile="${project.home}/src.jar"
+                     includes="**/*.java,**/*.xml,**/*.properties,**/*.rb,**/*.yaml,**/*.css,**/*.png,**/*.js,**/*.ru,**/*.txt,**/rakefile"
+                     excludes="**/dist/**/*, **/build/**/*,**/bin/**/*,**/tmp/**/*"
+                     basedir="${project.home}" />
+    </target>
+
+	
 </project>

@@ -30,13 +30,10 @@ Reply-To: <#{from}>
 To: #{to_alias} <#{to}>
 Subject: #{subject}
 Date: #{time_now}
-Message-Id: <#{time_now.to_i}@lloyd-jones.net>
+Message-Id: <#{time_now.to_i}@#{emailhost}>
 
-#{props['emailpreamble']}
+#{props['emailbody']}
 
-#{props['emailactivate']}
-
-#{props['emailend']}
 END_OF_MESSAGE
 
          puts "Sending email: #{subject} to #{to} from: #{props['emailalias']} <#{from}>"

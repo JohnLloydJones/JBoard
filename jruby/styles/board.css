@@ -162,3 +162,8 @@ copyright { font-family: Verdana, Tahoma, Arial, Sans-Serif; font-size: 9px; lin
    background: #FFC9A5;
 }
 
+.button-right {float:right; text-align: right;}
+div.spacer { clear: both; line-height: 1px; height: 1px; }
+.popup_form {font-size: 76%;float: right;clear: both; background-color: #BCD0ED; border: 1px solid #345487;padding: 4px 6px;}
+.popup_form label {width: 5em;display: inline-block;}
+.popup_form input {display: inline-block;}

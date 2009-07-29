@@ -132,7 +132,6 @@
 .title-stuff {text-align: left;font-size: 1em;}
 .page-name span {font-weight: 600;}
 .short-message textarea{width:98%;}
-.button-right {float:right; text-align: right;}
 .msg-type{float:left;}
 .avatar {padding: 6px; width: 10%; text-align: left; vertical-align: top;}
 .avatar img {width: 100px; }
@@ -154,6 +153,4 @@ ul.feature-list {list-style: none; text-align: left; padding-left: 1em;}
 .maintitle { background-image: url(../images/tile_back.gif); }
 .tableborder {margin-bottom: 2px;}
 .darkrow2 {line-height: 2em; border-top: 2px solid #fff; border-bottom:1px solid #BCD0ED;}
-div.spacer { clear: both; line-height: 1px; height: 1px; }
 
-.friend-form {font-size: 76%;float: right;clear: both; background-color: #BCD0ED; border: 1px solid #345487;padding: 4px 6px;}

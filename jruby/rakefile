@@ -5,7 +5,7 @@ JETTY_HOME = USER_HOME + "/dev/jetty-distribution-7.0.0.RC1"
 
 task :default => [:deploy]
 task :deploy => [:stop_server, :war, :copy, :start_server]  # make war and deploy to tomcat
-task :all => [:jar, :deploy]     # make jar first
+task :all => [:jar, :src, :deploy]     # make jar first
 
 # Stop server, if required. 
 task :stop_server do
@@ -48,7 +48,11 @@ task :start_server do
 end
 
 task :jar do
-   puts 'ant -f ../java/build.xml'
+   sh 'ant -f ../java/build.xml'
+end
+
+task :src do
+   sh 'ant -f ../java/build.xml source' 
 end
 
 # NB need a regex for grep that doesn't match itself; backslash dot does the trick.

@@ -51,7 +51,7 @@ function submitMessage()
 function addFriend ()
 {
    var div = $('friend-cmds');
-   var form = DIV({}, FORM ({'class': 'friend-form', 'id': 'add_friend_form'},
+   var form = DIV({}, FORM ({'class': 'popup_form', 'id': 'add_friend_form'},
                          LABEL ({'for': 'friend' }, 'Name: '),
                          INPUT ({'class': 'forminput', 'name': 'friend', 'id': 'friend', 'size': '16', 'maxlength': '32'}),
                          BR(),

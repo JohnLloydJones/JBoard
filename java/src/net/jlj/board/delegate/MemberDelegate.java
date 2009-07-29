@@ -32,12 +32,22 @@ public class MemberDelegate extends AbstractDelegate
 
       return results;
    }
+   
+   public Member getUser (String name)
+   {
+      Member member = getUserByName (name.trim ());
+      if (member == null && name.matches ("[\\w\\d][-_.\\w]+@([\\w-]+\\.)+[\\w-]+"))
+      {
+         member = getUserByEmail (name.trim());
+      }
+      return member;
+   }
    /**
     * Find and return a single user with exact match.
     * @param user
     * @return
     */
-   public Member getUser (String user)
+   public Member getUserByName (String user)
    {
       Query q = createNamedQuery("user");
       q.setParameter(1, user);

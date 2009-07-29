@@ -98,9 +98,11 @@ module Board
          self << ". It's quick and easy."
          br
          br
-         b do
-            self << "I've forgotten my password!"
-            a "Reset my password", :href=>"/reset_password"
+         div do
+            b do
+               self << "I've forgotten my password!"
+               a "Reset my password", :href=>"/reset_password", :onclick=>"return resetPassword(this);"
+            end
          end
          br
          br
@@ -352,6 +354,59 @@ module Board
            end
        end #form
      end
+     
+      def reset_password
+         br
+         self << "You can enter your new password in the form below."
+         br
+         form.reset_password! :method => 'post', :class => 'create' do
+            input :name=>"referer", :value=>"", :type=>"hidden"
+   
+            div.tableborder do
+               div.maintitle do
+                 img :src=>"images/nav_m.png", :alt=>"<"
+                 self << " Change password"
+               end
+               div.pformstrip "Please enter your new password"
+               errors_for @user if @user
+               table.tablebasic :cellspacing=>"1" do
+                  tr do
+                     td.pformleft do
+                        strong "Your name"
+                        br
+                        self << "This is the name you chose when you registered"
+                     end
+                     td.pformright do
+                        input.uid! :type => 'hidden', :value=>"#{@user.uid}"
+                        input.login! :type => 'text', :value=>"#{@user.login}", :readonly=>'readonly'
+                     end
+                  end
+                  tr do
+                     td.pformleft do
+                        strong 'Enter your Password'
+                     end
+                     td.pformright do
+                        input.forminput :type => 'password', :id=>'password', :name=>'password', :size=>"32", :maxlength=>"32"
+                     end
+                  end
+                  tr do
+                     td.pformleft do
+                        strong "Please retype your password"
+                        br
+                        self << "It must match exactly."
+                     end
+                     td.pformright do
+                     input.forminput :type=>"password", :size=>"32", :maxlength=>"32", :value=>"", :name=>"password_check", :id=>"password_check"
+                     end
+                  end
+               end
+               div.pformstrip :align=>"center" do
+                  input.submit_btn! :type => 'button', :value => "Submit", :onclick=>'validateReset()'
+               end
+            end
+         end
+      end
+     
      def members
         div.breadcrumb! :align=>"left" do
            img :src=>"/images/nav.png", :alt=>"&gt;"
