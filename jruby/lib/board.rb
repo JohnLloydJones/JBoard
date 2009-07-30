@@ -36,6 +36,7 @@ module UserSession
         @user = session['user_login'] || Board::User.new( 'guest' )
         @state.user_name = @user.login
         @req_url = env['java.servlet_request'].request_url
+        @referer = env['java.servlet_request'].get_header('referer')
         
         # TODO: check the HTTP_X_FORWARDED_FOR header in case the request was proxied.
         @user_ip = env['java.servlet_request'].remote_addr
@@ -193,10 +194,10 @@ module Board::Controllers
                 target = "/personal/#{member.get_id}"
                 if member.name == 'admin'
                   board = @facade.get_board
-                  @input.referrer = nil if board.categories.empty?
+                  @input.referer = nil if board.categories.empty?
                 end
                 target = member.properties["user_home"] if member.properties["user_home"]
-                target = @input.referrer if @input.referrer
+                target = @input.referer if @input.referer
                 
                 return redirect( target )
             else
@@ -257,9 +258,10 @@ module Board::Controllers
                 # Fix plus signs as they will be urldecoded to spaces.
                 url = "#{@req_url.to_s}?reset_key=#{ reset_code.gsub( /\+/, "%2B" ) }"
                 props = {}
-                host = @board.properties['smtp_host'].split(':')
-                props['emailhost'] = host[0]
-                props['emailport'] = host.length > 1 ? host[1] : '25'   
+                host_a = @board.properties['smtp_host'].split(':')
+                host = host_a[0]
+                port = host_a.length > 1 ? host_a[1] : '25'
+             
                 props['emailfrom'] =     @board.properties['smtp_from']
                 props['emailuser'] =     @board.properties['smtp_user'] || ''
                 props['emailpassword'] = @board.properties['smtp_password'] || ''
@@ -274,7 +276,7 @@ If you cannot click the link, copy it and then paste it into your browser. If yo
 
 END_OF_BODY
                    
-                sm = SendMail.new( url )
+                sm = SendMail.new( host, port )
                 sm.send_email( props, @input.useremail, "#{board_properties['board_name']} User", 'Reset password request' )
                 "OK: An email has been sent to you. When you receive it follow the provided link which will allow you to enter a new password."
              rescue Exception => e
@@ -367,10 +369,12 @@ END_OF_BODY
               if  @board.properties['smtp_host']
                  # Fix plus signs as they will be urldecoded to spaces.
                  url = "#{@req_url.to_s[0..-9]}confirm?reg_key=#{ reg_code.gsub( /\+/, "%2B" ) }"
+                 
+                 host_a = @board.properties['smtp_host'].split(':')
+                 host = host_a[0]
+                 port = host_a.length > 1 ? host_a[1] : '25'
+                 
                  props = {}
-                 host = @board.properties['smtp_host'].split(':')
-                 props['emailhost'] = host[0]
-                 props['emailport'] = host.length > 1 ? host[1] : '25'   
                  props['emailfrom'] =     @board.properties['smtp_from']
                  props['emailuser'] =     @board.properties['smtp_user'] || ''
                  props['emailpassword'] = @board.properties['smtp_password'] || ''
@@ -384,7 +388,7 @@ END_OF_BODY
 #{ board_properties['emailend'] }                   
 END_OF_BODY
    
-                 sm = SendMail.new url
+                 sm = SendMail.new( host, port )
                  sm.send_email( props, @input.useremail, 'New User', 'Confirm registration' )
                  end
            rescue Exception => e
@@ -1146,6 +1150,49 @@ END_OF_BODY
          @facade.commit
         
          redirect "/board"
+      end
+   end
+   
+   class EmailUser< R '/email_user/(\d+)'
+      def get id
+         @to_user = @facade.get_user id.to_i
+         @subject = ''
+         @message = ''
+         render :email_user
+      end
+      def post id
+         @subject = @input.subject
+         @message = @input.message
+         @referer = @input.referer 
+         @board = @facade.get_board
+         
+         from_user = @facade.get_validated_user
+         return redirect '/login' if from_user.nil?
+         
+         @to_user = @facade.get_user id.to_i
+         host_a = @board.properties['smtp_host'].split(':')
+         host = host_a[0]
+         port = host_a.length > 1 ? host_a[1] : '25'
+         
+         props = {}
+         props['emailfrom'] =     from_user.email
+         props['emailuser'] =     @board.properties['smtp_user'] || ''
+         props['emailpassword'] = @board.properties['smtp_password'] || ''
+         props['emailalias'] =   "#{board_properties['board_name']} user #{from_user.name}"
+         props['emailbody'] =     @message
+         begin
+            sm = SendMail.new( host, port )
+            sm.send_email( props, @to_user.email, @to_user.name, @subject )
+            target = "/personal/#{from_user.get_id}"
+            target = @referer if @referer
+            
+            redirect( target )
+         rescue
+            puts $!
+            @user.add_error( :base, "Failed to send the email. Please report this problem to the board administrator.")
+            render :email_user
+         end
+         
       end
    end
    class RepairLastPosted < R '/repair_last_posted'

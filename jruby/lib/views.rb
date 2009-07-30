@@ -65,7 +65,7 @@ module Board
                   form.quick :action=>"/login", :method=>"post" do
                      div :align=>"right" do
                         strong "Quick Log In: "
-                        input :name=>"referrer", :value=>"#{@req_url}", :type=>"hidden"
+                        input :name=>"referer", :value=>"#{@req_url}", :type=>"hidden"
                         input.forminput :size=>"10",  :type=>"text", :name=>"login", :onfocus=>"this.value=''", :value=>"User Name"
                         input.forminput :size=>"10",  :type=>"password", :name=>"password",
                               :onfocus=>"this.value=''", :value=>" ~secret~ "
@@ -107,7 +107,7 @@ module Board
          br
          br
          form.user_login! :method => 'post', :class => 'create', :onsubmit=>"return validateLogin();" do
-            input :name=>"referer", :value=>"", :type=>"hidden"
+#            input :name=>"referer", :value=>"", :type=>"hidden"
    
             div.tableborder do
                div.maintitle do
@@ -360,7 +360,7 @@ module Board
          self << "You can enter your new password in the form below."
          br
          form.reset_password! :method => 'post', :class => 'create' do
-            input :name=>"referer", :value=>"", :type=>"hidden"
+#            input :name=>"referer", :value=>"", :type=>"hidden"
    
             div.tableborder do
                div.maintitle do
@@ -441,7 +441,9 @@ module Board
                     td.row4 member.created
                     td.row4 member.properties['num_posts']
                     td.row4 do
-                       img :src=>"/images/p_email.png", :alt=>'Email'
+                       a :href=>"/email_user/#{member.get_id}" do
+                          img :src=>"/images/p_email.png", :alt=>'Email'
+                       end
                     end
                   end
               end
@@ -1133,11 +1135,9 @@ module Board
                       a :href=>"#", :title=>'PM Poster', :onclick=>"return pmUser(this, '#{post.properties['author'].name}')" do
                          img :src=>'../images/p_pm.png'
                       end
-=begin                      
-                      a :href=>"email/#{post.properties['author'].name}", :title=>'Email Poster' do
-                         img :src=>'../images/p_email.png'
+                      a :href=>"/email_user/#{post.properties['author'].get_id}" do
+                         img :src=>"/images/p_email.png", :alt=>'Email poster'
                       end
-=end                      
                    end
                 end
                 div.darkrow3 :align=>'right' do
@@ -1381,6 +1381,55 @@ module Board
         end
      end
      
+     def email_user
+        br
+        br
+        div do
+           b do
+              self << "IMPORTANT: A copy of your email will be logged " + 
+                         "and the contents will be available to the administrator(s). " + 
+                         "Do NOT email information that is private such as passwords or personal details."
+           end
+        end
+        br
+        br
+        form.user_email! :method => 'post', :class => 'create', :onsubmit=>"return validateEmail();" do
+           input :name=>"referer", :value=>"#{@referer}", :type=>"hidden"
+           input :name=>"to_user", :value=>"#{@to_user.get_id}", :type=>"hidden"
+
+           div.tableborder do
+              div.maintitle do
+                img :src=>"/images/nav_m.png", :alt=>"<"
+                self << " Send email to a user"
+              end
+              div.pformstrip "Email #{@to_user.name}"
+              errors_for @user if @user
+              table.tablebasic :cellspacing=>"1" do
+                 tr do
+                    td.pformleft do
+                       strong "Subject"
+                    end
+                    td.pformright do
+                       input.subject! :type => 'text', :value=>"#{@subject}", :class=>'forminput'
+                    end
+                 end
+                 tr do
+                    td.pformleft do
+                       strong 'Message'
+                       br
+                       self << "Note: The recipient will be able to see your email address."
+                    end
+                    td.pformright do
+                       textarea.message! "#{@message}", :cols => '72', :rows=>'12', :class=>'forminput'
+                    end
+                 end
+              end
+              div.pformstrip :align=>"center" do
+                 input.login_btn! :type => 'submit', :value => "Send Email"
+              end
+           end
+        end
+     end
       def dl_hash(hash)
         dl {
           hash.keys.each do |k|
