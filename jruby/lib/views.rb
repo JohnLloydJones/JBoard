@@ -74,7 +74,8 @@ module Board
                   end
                   div.copyright :align=>"center" do
                      br
-                     self << "JBoard v#{board_properties['board_version']}-Beta © 2009. &nbsp;Released under an MIT License."
+                     self << "JBoard v#{board_properties['board_version']}-#{board_properties['board_v_status']} © 2009. " +
+                             "&nbsp;Released under an MIT License."
                   end
                end
             end
@@ -264,7 +265,11 @@ module Board
               img :src=>"images/nav_m.png", :alt => ">"
               a "Registration Form", :href=>self/""
             end
-
+            br
+            self << "Complete and submit this registration form." 
+            self << " The board will send an email to the address you provided."
+            self << " That email will contain a link that will allow you to complete the registration process."
+            br
             errors_for @user if @user
             table :width=>"100%", :border=>"0", :cellpadding=>"4", :cellspacing=>"1" do
                tr do

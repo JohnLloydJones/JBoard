@@ -13,5 +13,7 @@
 	<classpathentry kind="lib" path="java/lib/picocontainer-2.8.2.jar"/>
 	<classpathentry kind="lib" path="java/lib"/>
 	<classpathentry kind="lib" path="java/lib/junit.jar"/>
+	<classpathentry kind="lib" path="java/lib/commons-dbcp-1.2.2.jar"/>
+	<classpathentry kind="lib" path="java/lib/derby-10.5.1.1.jar"/>
 	<classpathentry kind="output" path="java/bin"/>
 </classpath>

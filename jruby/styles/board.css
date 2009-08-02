@@ -82,7 +82,7 @@ ul.errors {
     font-weight: 600;
     font-size: 1em;
     margin: 0;
-    -moz-opacity: 0.80;
+    opacity: 0.80;
     width: auto;
     list-style: none;
 }

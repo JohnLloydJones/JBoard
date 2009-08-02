@@ -119,6 +119,7 @@ function confirmFriend(id, a)
          {
             alert (result);
             closeAddFriend ();
+            history.reload ();
          }
          else
          {
@@ -172,13 +173,16 @@ function addPlace ()
    var div = $('place-cmds');
    var form = DIV({}, FORM ({'class': 'place-form', 'id': 'add_place_form'},
                          LABEL ({'for': 'link_text' }, 'Name: '),
-                         INPUT ({'class': 'forminput', 'name': 'link_text', 'id': 'link_text', 'size': '18', 'maxlength': '32'}),
+                            INPUT ({'class': 'forminput', 'name': 'link_text', 'id': 'link_text', 'size': '18', 'maxlength': '32'}
+                         ),
                          BR(),
                          LABEL ({'for': 'link_url' }, 'Address (url): '),
-                         INPUT ({'class': 'forminput', 'name': 'link_url', 'id': 'link_url', 'size': '18', 'maxlength': '128', 'value':'http://'}),
+                            INPUT ({'class': 'forminput', 'name': 'link_url', 'id': 'link_url', 'size': '18', 'maxlength': '128', 'value':'http://'}
+                         ),
                          BR(),
                          LABEL ({'for': 'url_text' }, 'Description: '),
-                         INPUT ({'class': 'forminput', 'name': 'description', 'id': 'description', 'size': '18', 'maxlength': '255'}),
+                            INPUT ({'class': 'forminput', 'name': 'description', 'id': 'description', 'size': '18', 'maxlength': '255'}
+                         ),
                          BR(),
                          INPUT({'type': 'button', 'value': 'Add', 'name':'add','onclick': 'doAddPlace()'}),
                          INPUT({'type': 'button', 'value': 'Cancel', 'name': 'cancel','onclick': 'closeAddPlace()'})

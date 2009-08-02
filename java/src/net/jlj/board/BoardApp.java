@@ -76,7 +76,7 @@ public class BoardApp
    private static Properties loadProperties (String name)
    {
       Properties props = new Properties();
-      InputStream in = BoardApp.class.getClassLoader().getResourceAsStream("/" + name);
+      InputStream in = BoardApp.class.getResourceAsStream ("/" + name);
       try
       {
          props.load (in);
