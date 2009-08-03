@@ -65,7 +65,7 @@ public class NamingContext implements Context
 
    public Object lookup (String pname) throws NameNotFoundException
    {
-      String name = mRoot + pname;
+      String name = mRoot + ("".equals (mRoot)?"":"/") + pname;
       if ("".equals (name))
       {
          return new NamingContext (mRoot, mBoundObjects, mEnvironment);
@@ -97,12 +97,12 @@ public class NamingContext implements Context
 
    public void bind (String name, Object obj)
    {
-      mBoundObjects.put (mRoot + name, obj);
+      mBoundObjects.put (mRoot + ("".equals (mRoot)?"":"/") + name, obj);
    }
 
    public void unbind (String name)
    {
-      mBoundObjects.remove (mRoot + name);
+      mBoundObjects.remove (mRoot + ("".equals (mRoot)?"":"/") + name);
    }
 
    public void rebind (String name, Object obj)
@@ -119,7 +119,8 @@ public class NamingContext implements Context
 
    public Context createSubcontext (String name)
    {
-      Context subcontext = new NamingContext (mRoot + name, mBoundObjects, mEnvironment);
+      String newName = mRoot + ("".equals (mRoot)?"":"/") + name;
+      Context subcontext = new NamingContext (newName, mBoundObjects, mEnvironment);
       bind (name, subcontext);
       return subcontext;
    }
@@ -228,7 +229,7 @@ public class NamingContext implements Context
    private static abstract class AbstractNamingEnumeration<T> implements NamingEnumeration<T>
    {
 
-      private Iterator<T> iterator;
+      private Iterator<T> mIterator;
 
       private AbstractNamingEnumeration (NamingContext context, String proot) throws NamingException
       {
@@ -246,8 +247,8 @@ public class NamingContext implements Context
             {
                int startIndex = root.length ();
                int endIndex = boundName.indexOf ('/', startIndex);
-               String strippedName = (endIndex != -1 ? boundName.substring (startIndex, endIndex) : boundName
-                        .substring (startIndex));
+               String strippedName = (endIndex != -1 ? boundName.substring (startIndex, endIndex) : 
+                                                       boundName.substring (startIndex));
                if (!contents.containsKey (strippedName))
                {
                   try
@@ -261,33 +262,33 @@ public class NamingContext implements Context
                }
             }
          }
-         if (contents.size () == 0)
+         if (contents.isEmpty ())
          {
             throw new NamingException ("Invalid root: " + context.mRoot + proot + "");
          }
-         this.iterator = contents.values ().iterator ();
+         mIterator = contents.values ().iterator ();
       }
 
       protected abstract T createObject (String strippedName, Object obj);
 
       public boolean hasMore ()
       {
-         return iterator.hasNext ();
+         return mIterator.hasNext ();
       }
 
       public T next ()
       {
-         return iterator.next ();
+         return mIterator.next ();
       }
 
       public boolean hasMoreElements ()
       {
-         return iterator.hasNext ();
+         return mIterator.hasNext ();
       }
 
       public T nextElement ()
       {
-         return iterator.next ();
+         return mIterator.next ();
       }
 
       public void close ()
