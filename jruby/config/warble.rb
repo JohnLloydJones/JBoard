@@ -10,7 +10,7 @@ Warbler::Config.new do |config|
   config.includes = FileList["board.yaml"]
 
   # Additional files/directories to exclude
-  config.excludes = FileList["../java/lib/jetty*.jar,../java/lib/commons-collections*.jar,commons-dbcp*.jar"]
+#  config.excludes = FileList[""]
 
   # Additional Java .jar files to include.  Note that if .jar files are placed
   # in lib (and not otherwise excluded) then they need not be mentioned here.
@@ -23,9 +23,9 @@ Warbler::Config.new do |config|
   end
 config.java_libs += FileList["../java/lib/*.jar"]
 config.java_libs += FileList["../java/dist/lib/jboard.jar"]
-   config.java_libs.delete_if {|f| f =~ /jetty/}
-   config.java_libs.delete_if {|f| f =~ /derby/}
-   config.java_libs.delete_if {|f| f =~ /dbcp/}
+config.java_libs.delete_if {|f| f =~ /jetty/}
+config.java_libs.delete_if {|f| f =~ /derby/}
+config.java_libs.delete_if {|f| f =~ /dbcp/}
 
   # Loose Java classes and miscellaneous files to be placed in WEB-INF/classes.
   config.java_classes = FileList["properties/log4j.properties", "properties/openjpa.properties"]
@@ -67,5 +67,5 @@ config.java_libs += FileList["../java/dist/lib/jboard.jar"]
   # config.webxml.jruby.max.runtimes = 4
 
   # JNDI data source name
-  # config.webxml.jndi = 'jdbc/rails'
+   config.webxml.jndi = 'jdbc/JBoardDB'
 end
