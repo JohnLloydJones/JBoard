@@ -224,11 +224,11 @@ module Board::Controllers
        include Encrypt
        def get
           reset_key = @input.reset_key
-          return redirect ('/board') if reset_key.nil?
+          return redirect('/board') if reset_key.nil?
           
           user_login = decrypt( reset_key ).strip
           member = @facade.get_user user_login
-          return redirect ('/board') if member.nil?
+          return redirect('/board') if member.nil?
           
           @facade.logged_on_user = user_login
           
