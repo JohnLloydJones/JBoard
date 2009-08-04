@@ -28,11 +28,14 @@ import org.apache.log4j.Logger;
 public class DataSourceProvider
 {
    private static Logger log = Logger.getLogger(DataSourceProvider.class.getName ());
+   private static final String JNDI_PREFIX = "java:comp/env";
    private static final String JNDI_NAME = "jdbc/JBoardDB";
+   private static final String FULL_JNDI_NAME = JNDI_PREFIX + "/" + JNDI_NAME;
    private static final String NAMING_FACTORY = "net.jlj.board.jndi.InitialContextFactory";
    private PoolingDataSource dataSource = null;
 
    /**
+    * Create a datasource and bind it to the jndi name.
     * Constructor
     * @param driver
     * @param url
@@ -63,9 +66,7 @@ public class DataSourceProvider
          Properties p = new Properties ();
          p.put (Context.INITIAL_CONTEXT_FACTORY, namingFactory);
          Context ctx = new InitialContext(p);
-         Context e = lookupOrCreateSubcontext (ctx, "java:comp/env");
-         Context j = lookupOrCreateSubcontext (e, "jdbc");
-         j.bind("JBoardDB", dataSource);
+         bind (ctx, FULL_JNDI_NAME, dataSource);
       }
       catch (NamingException e)
       {
@@ -78,6 +79,32 @@ public class DataSourceProvider
          throw new RuntimeException ("Failed to create the DataSource", t);
       }
    }
+   /**
+    * Bind to a context, creating the sub-contexts as required.
+    * @param ctx the context to bind to
+    * @param name the name (possibly compound), relative to the context 
+    * @param obj the object to bind
+    * @return
+    * @throws NamingException
+    */
+   private Context bind (Context ctx, String name, Object obj) throws NamingException
+   {
+      String[] names = name.split ("/");
+      Context subCtx = ctx;
+      for (int n = 0; n < names.length -1; n++)
+      {
+         subCtx = lookupOrCreateSubcontext (subCtx, names[n]);
+      }
+      subCtx.rebind (names [names.length -1], obj);
+      return subCtx;
+   }
+   /**
+    * Lookup a context and if it doesn't exist, create it.
+    * @param ctx
+    * @param name
+    * @return
+    * @throws NamingException
+    */
    private Context lookupOrCreateSubcontext (Context ctx, String name) throws NamingException
    {
       Context c = null;
@@ -177,7 +204,7 @@ public class DataSourceProvider
       }
       System.out.println ("There were " + n + " elements");
       
-      Context envCtx = (Context)ctx.lookup ("java:comp/env");
+      Context envCtx = (Context)ctx.lookup (JNDI_PREFIX);
       DataSource ds = (DataSource)envCtx.lookup (JNDI_NAME);
       Connection conn = ds.getConnection ();
       System.out.println ("Connection: " + conn);

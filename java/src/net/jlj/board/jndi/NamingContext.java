@@ -14,9 +14,6 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.OperationNotSupportedException;
-
-import net.jlj.board.jndi.LocalContextRoot.LocalNameParser;
 
 import org.apache.log4j.Logger;
 /**
@@ -125,7 +122,8 @@ public class NamingContext implements Context
    public Context createSubcontext (String name)
    {
       String newName = mRoot + ("".equals (mRoot)?"":"/") + name;
-      Context subcontext = new NamingContext (newName, mBoundObjects, mEnvironment);
+      NamingContext subcontext = new NamingContext (newName, mBoundObjects, mEnvironment);
+      subcontext.setNameParser(mParser);
       bind (name, subcontext);
       return subcontext;
    }

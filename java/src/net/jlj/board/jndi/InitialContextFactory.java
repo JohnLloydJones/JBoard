@@ -16,7 +16,9 @@ public class InitialContextFactory implements javax.naming.spi.InitialContextFac
    @Override
    public Context getInitialContext (Hashtable <?, ?> env) throws NamingException
    {
-      return new LocalContextRoot ((Hashtable <String, Object>) env);
+      Context ctx = new LocalContextRoot ((Hashtable <String, Object>) env);
+      ctx.createSubcontext ("java:comp"); // we are creating a jndi name context, so put this in now.
+      return ctx;
    }
 
 }

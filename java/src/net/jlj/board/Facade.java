@@ -21,7 +21,11 @@ import net.jlj.board.dom.Member;
 import net.jlj.board.dom.Message;
 import net.jlj.board.dom.Post;
 import net.jlj.board.dom.Topic;
-
+/**
+ * Single interface to the JBoard back end.  
+ * @author john
+ *
+ */
 public class Facade
 {
    private static Logger log = Logger.getLogger (Facade.class.getName ());
@@ -54,7 +58,7 @@ public class Facade
       return facade;
    }
    
-   /* Member methods */
+   /* ======== Member methods ======== */
    public Member getUser (String name)
    {
       return name == null ? null : mMemberDelegate.getUser (name.trim ());
@@ -128,7 +132,7 @@ public class Facade
       mMemberDelegate.removeLink (mLoggedOnAs, link);
    }
    
-   /* Board methods */
+   /* ======== Board methods ======== */
    public Board getBoard ()
    {
       return mBoardDelegate.getBoard ("main");
