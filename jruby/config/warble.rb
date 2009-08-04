@@ -24,8 +24,8 @@ Warbler::Config.new do |config|
 config.java_libs += FileList["../java/lib/*.jar"]
 config.java_libs += FileList["../java/dist/lib/jboard.jar"]
 config.java_libs.delete_if {|f| f =~ /jetty/}
-config.java_libs.delete_if {|f| f =~ /derby/}
-config.java_libs.delete_if {|f| f =~ /dbcp/}
+# config.java_libs.delete_if {|f| f =~ /derby/}
+# config.java_libs.delete_if {|f| f =~ /dbcp/}
 
   # Loose Java classes and miscellaneous files to be placed in WEB-INF/classes.
   config.java_classes = FileList["properties/log4j.properties", "properties/openjpa.properties"]
@@ -67,5 +67,5 @@ config.java_libs.delete_if {|f| f =~ /dbcp/}
   # config.webxml.jruby.max.runtimes = 4
 
   # JNDI data source name
-   config.webxml.jndi = 'jdbc/JBoardDB'
+#   config.webxml.jndi = 'jdbc/JBoardDB'
 end

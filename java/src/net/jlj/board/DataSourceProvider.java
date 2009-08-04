@@ -47,7 +47,8 @@ public class DataSourceProvider
       }
       catch (ClassNotFoundException e)
       {
-         e.printStackTrace ();
+         log.error ("Failed to load driver", e);
+         throw new RuntimeException ("Failed to load driver", e);
       }
       try
       {
@@ -62,18 +63,36 @@ public class DataSourceProvider
          Properties p = new Properties ();
          p.put (Context.INITIAL_CONTEXT_FACTORY, namingFactory);
          Context ctx = new InitialContext(p);
-         ctx.createSubcontext ("java:comp")
-                  .createSubcontext ("env")
-                  .createSubcontext ("jdbc")
-                  .bind("JBoardDB", dataSource);
+         Context e = lookupOrCreateSubcontext (ctx, "java:comp/env");
+         Context j = lookupOrCreateSubcontext (e, "jdbc");
+         j.bind("JBoardDB", dataSource);
       }
       catch (NamingException e)
       {
-         e.printStackTrace();
-         log.error ("Failed to create the DataSource", e);
+         log.error ("Failed to bind the DataSource", e);
+         throw new RuntimeException ("Failed to bind the DataSource", e);
+      }
+      catch (Throwable t)
+      {
+         log.error ("Failed to create the DataSource", t);
+         throw new RuntimeException ("Failed to create the DataSource", t);
       }
    }
-
+   private Context lookupOrCreateSubcontext (Context ctx, String name) throws NamingException
+   {
+      Context c = null;
+      log.info ("For context " + ctx.getNameInNamespace ());
+      try
+      {
+         c = (Context)ctx.lookup (name);
+      }
+      catch (Exception ex)
+      {
+         log.info ("Create subcontext " + name);
+         c = ctx.createSubcontext (name);
+      }
+      return c;
+   }
 
 
    private static Properties loadProperties (String name)
@@ -97,9 +116,8 @@ public class DataSourceProvider
     * @param user
     * @param password
     * @return
-    * @throws NamingException
     */
-   private PoolingDataSource setupDataSource (String connectURI, String user, String password) throws NamingException
+   private PoolingDataSource setupDataSource (String connectURI, String user, String password)
    {
       GenericObjectPool.Config config = new GenericObjectPool.Config ();
       config.maxActive = 150;
@@ -159,8 +177,8 @@ public class DataSourceProvider
       }
       System.out.println ("There were " + n + " elements");
       
-      
-      DataSource ds = (DataSource)ctx.lookup (JNDI_NAME);
+      Context envCtx = (Context)ctx.lookup ("java:comp/env");
+      DataSource ds = (DataSource)envCtx.lookup (JNDI_NAME);
       Connection conn = ds.getConnection ();
       System.out.println ("Connection: " + conn);
       conn.close();

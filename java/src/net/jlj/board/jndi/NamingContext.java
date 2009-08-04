@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javax.naming.Binding;
+import javax.naming.CompoundName;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameClassPair;
@@ -14,6 +15,8 @@ import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
+
+import net.jlj.board.jndi.LocalContextRoot.LocalNameParser;
 
 import org.apache.log4j.Logger;
 /**
@@ -31,6 +34,8 @@ public class NamingContext implements Context
    private final Hashtable<String, Object> mBoundObjects;
 
    private final Hashtable<String, Object> mEnvironment;
+   
+   private NameParser mParser;
 
    public NamingContext ()
    {
@@ -132,7 +137,8 @@ public class NamingContext implements Context
 
    public String composeName (String name, String prefix)
    {
-      return prefix + name;
+      
+      return prefix + (prefix.endsWith ("/")?"":"/") + (name.startsWith ("/") ? name.substring (1) : name);
    }
 
    public Hashtable<String, Object> getEnvironment ()
@@ -158,72 +164,76 @@ public class NamingContext implements Context
 
    public NamingEnumeration<NameClassPair> list (Name name) throws NamingException
    {
-      throw new OperationNotSupportedException ("the use of javax.naming.Name is not supported");
+      return list (name.toString ());
    }
 
    public NamingEnumeration<Binding> listBindings (Name name) throws NamingException
    {
-      throw new OperationNotSupportedException ("the use of javax.naming.Name is not supported");
+      return listBindings (name.toString ());
    }
 
    public Object lookup (Name name) throws NamingException
    {
-      throw new OperationNotSupportedException ("the use of javax.naming.Name is not supported");
+      return lookup (name.toString ());
    }
 
    public Object lookupLink (Name name) throws NamingException
    {
-      throw new OperationNotSupportedException ("the use of javax.naming.Name is not supported");
+      return lookupLink (name.toString ());
    }
 
    public void bind (Name name, Object obj) throws NamingException
    {
-      throw new OperationNotSupportedException ("the use of javax.naming.Name is not supported");
+      bind (name.toString (), obj);
    }
 
    public void unbind (Name name) throws NamingException
    {
-      throw new OperationNotSupportedException ("the use of javax.naming.Name is not supported");
+      unbind (name.toString ());
    }
 
    public void rebind (Name name, Object obj) throws NamingException
    {
-      throw new OperationNotSupportedException ("the use of javax.naming.Name is not supported");
+      rebind (name.toString (), obj);
    }
 
    public void rename (Name oldName, Name newName) throws NamingException
    {
-      throw new OperationNotSupportedException ("the use of javax.naming.Name is not supported");
+      rename (oldName.toString (), newName.toString ());
    }
 
    public Context createSubcontext (Name name) throws NamingException
    {
-      throw new OperationNotSupportedException ("the use of javax.naming.Name is not supported");
+      return createSubcontext (name.toString ());
    }
 
    public void destroySubcontext (Name name) throws NamingException
    {
-      throw new OperationNotSupportedException ("the use of javax.naming.Name is not supported");
+      destroySubcontext (name.toString ());
    }
 
    public String getNameInNamespace () throws NamingException
    {
-      throw new OperationNotSupportedException ("the use of javax.naming.Name is not supported");
+      return mRoot;
    }
 
    public NameParser getNameParser (Name name) throws NamingException
    {
-      throw new OperationNotSupportedException ("the use of javax.naming.Name is not supported");
+      return mParser;
    }
 
    public NameParser getNameParser (String name) throws NamingException
    {
-      throw new OperationNotSupportedException ("the use of javax.naming.Name is not supported");
+      return mParser;
    }
-
+   /* package scope */
+   void setNameParser (NameParser parser)
+   {
+      mParser = parser;
+   }
    public Name composeName (Name name, Name prefix) throws NamingException
    {
-      throw new OperationNotSupportedException ("the use of javax.naming.Name is not supported");
+      return ((CompoundName)prefix.clone()).addAll (name);
    }
 
    private static abstract class AbstractNamingEnumeration<T> implements NamingEnumeration<T>

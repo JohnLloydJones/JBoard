@@ -1,8 +1,10 @@
 package net.jlj.board.jndi;
 
 import java.util.Hashtable;
+import java.util.Properties;
 
 import javax.naming.Binding;
+import javax.naming.CompoundName;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameClassPair;
@@ -16,7 +18,14 @@ import javax.naming.NamingException;
  */
 public class LocalContextRoot implements Context
 {
-   private static final NamingContext mRootContext = new NamingContext();
+   private static final NamingContext mRootContext = createRootContext ();
+   
+   private static NamingContext createRootContext ()
+   {
+      NamingContext ctx = new NamingContext();
+      ctx.setNameParser (new LocalNameParser());
+      return ctx;
+   }
    private final Hashtable<String, Object> mEnvironment;
    
    public LocalContextRoot (Hashtable<String,Object> env)
@@ -279,5 +288,21 @@ public class LocalContextRoot implements Context
          mRootContext.unbind (name);
       }
    }
+   
+   public static class LocalNameParser implements NameParser
+   { 
+       static Properties syntax = new Properties();   
+       static 
+       {
+           syntax.put("jndi.syntax.direction", "left_to_right");
+           syntax.put("jndi.syntax.separator", "/");
+           syntax.put("jndi.syntax.ignorecase", "false");
+       }
+       public Name parse (String name)
+           throws NamingException
+       {
+           return new CompoundName (name, syntax);
+       }
+   };
 
 }

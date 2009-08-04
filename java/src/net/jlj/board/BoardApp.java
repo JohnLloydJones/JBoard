@@ -93,6 +93,11 @@ public class BoardApp
       Properties props = loadProperties (OPENJPA_PROPS);
       // Special handling for Derby. Must set derby.system.home to something sensible.
       String dictionary = props.getProperty ("openjpa.jdbc.DBDictionary");
+      if (dictionary == null)
+      {
+         dictionary = "derby()"; // Default to embedded Derby and hope for the best.
+         props.put ("openjpa.jdbc.DBDictionary", dictionary);
+      }
       log.info ("using " + dictionary + " DBDictionary");
       if (dictionary.startsWith ("derby"))
       {
@@ -116,14 +121,11 @@ public class BoardApp
       {
          log.info ("No datasource (initial context factory not defined). Attempt to create one locally.");
          Properties dsProps;
-         try
+         dsProps = loadProperties ("jboard-ds.properties");
+
+         if (dsProps == null)
          {
-            dsProps = loadProperties ("jboard-ds.properties");
-         }
-         catch (RuntimeException e)
-         {
-            log.info ("No jboard-ds.properties file; using default settings.");
-            dsProps = new Properties();
+            dsProps = props;
          }
          String driver =   dsProps.getProperty ("driverClassName", "org.apache.derby.jdbc.EmbeddedDriver");
          String username = dsProps.getProperty ("username", "");
@@ -131,12 +133,20 @@ public class BoardApp
          String url =      dsProps.getProperty ("url", "jdbc:derby:JBoardDB;create=true");
          
          log.info ("Create DataSource using driver " + driver + " and url: " + url);
-         DataSourceProvider provider = new DataSourceProvider (driver,  url, username, password);
+         try
+         {
+            DataSourceProvider provider = new DataSourceProvider (driver, url, username, password);
+         }
+         catch (Throwable t)
+         {
+            log.error ("Failed to create the DataSourceProvider", t);
+            throw new RuntimeException ("Failed to create the DataSourceProvider", t);
+         }
          namingFactory = System.getProperty (Context.INITIAL_CONTEXT_FACTORY);
          log.info ("Initial context factory is now: " + namingFactory);
       }
 
-/*     
+      // FIXME: Following block is just for debugging/testing. Remove when code is solid.
       try
       {
          log.info ("Attempt to get a connection...");
@@ -174,7 +184,7 @@ public class BoardApp
       }
       
       log.info ("Properties for openjpa emf: " + props.toString ());
-*/      
+      
       return props;
    }
    
@@ -189,9 +199,7 @@ public class BoardApp
       }
       catch (Exception e)
       {
-         log.fatal (e);
-         System.out.println ("Could not open " + name + ": " +  e.getMessage ());
-         throw new RuntimeException ("Could not open " + name + ": ", e);
+         log.debug (e);
       }
       return props;
    }
