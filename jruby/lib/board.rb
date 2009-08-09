@@ -31,20 +31,21 @@ module UserSession
         m = /^(\/.*?)(?=\/)/.match(@root)
 #        puts "@root was #{@root}, #{m ? 'changing to ' + m[1] : 'no change needed'} "
         @root = m[1] if m      # fix for Camping quirk that expects the app to live at root
-        session = env['java.servlet_request'].session true
-        @state = session['state'] || Camping::H[]
-        @user = session['user_login'] || Board::User.new( 'guest' )
+        @session = env['java.servlet_request'].session( true )
+        @state = @session['state'] || Camping::H[]
+        @user = @session['user_login'] || Board::User.new( 'guest' )
         @state.user_name = @user.login
         @req_url = env['java.servlet_request'].request_url
-        @referer = env['java.servlet_request'].get_header('referer')
+        @referer = @headers['referer']
         
         # TODO: check the HTTP_X_FORWARDED_FOR header in case the request was proxied.
         @user_ip = env['java.servlet_request'].remote_addr
         @styles = %w{ board.css }
         @scripts = %w{ board.js }
         @state.errors, @state.next_errors = @state.next_errors || [], nil
-        session['state'] = @state
+        @session['state'] = @state
         @headers['Content-Type'] = 'text/html; charset=utf-8'
+        @cookies['rsessionid'] = env['rsessionid'] if env['rsessionid']
         @facade = Facade.get_instance @user.login
         begin
            super(*a)
@@ -58,7 +59,8 @@ end
 Markaby::XHTMLTransitional.tagset[:th] += [:width, :height, :bgcolor]
 Markaby::XHTMLTransitional.doctype = ["-//W3C//DTD XHTML 1.0 Transitional//EN",
                                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"]
-# This ensure that the doctype gets emitted properly
+=begin
+# This ensure that the doctype gets emitted properly -- not needed for Comping 0.50.180
 class Markaby::Builder
    def xhtml_html(&block)
       instruct! if @output_xml_instruction
@@ -66,26 +68,22 @@ class Markaby::Builder
       @streams.last.to_s + tag!(:html, :xmlns => "http://www.w3.org/1999/xhtml", "xml:lang" => "en", :lang => "en", &block)
    end
 end
+=end
 # ... and turn off the <?XML tag -- that hurts IE -- and emit readable html while debugging
 Markaby::Builder.set(:output_xml_instruction, false)
-Markaby::Builder.set(:indent, 3) 
+Markaby::Builder.set(:indent, 3)
 
 # Module Board is the container for the application.
 module Board
     include UserSession
     include MimeTypes
     
-    STATIC_PATH = File.expand_path('../..', File.dirname(__FILE__))
-    @@properties ||= YAML::load( File.open( STATIC_PATH + '/WEB-INF/board.yaml' ) )
-    puts "Read board.yaml from  #{STATIC_PATH + '/WEB-INF/board.yaml'}"
+    STATIC_PATH = File.expand_path('..', File.dirname(__FILE__))
+    @@properties ||= YAML::load( File.open( STATIC_PATH + '/board.yaml' ) )
+    puts "Read board.yaml from  #{STATIC_PATH + '/board.yaml'}"
     def board_properties
        @@properties
     end
-# app_root is obsolete -- remove any remaining references and delete.
-#    APP_NAME = STATIC_PATH[/\/([^\/]+)$/]
-#    def app_root
-#      @app_root ||= "#{'http://' + @env.HTTP_HOST +  Board::APP_NAME}"
-#    end
     
     # The user class is a light weight user object that is kept in the session. Before loging in
     # the user is 'guest', a pre-defined user that has minimal privileges. 
@@ -172,8 +170,7 @@ module Board::Controllers
     class LoginUser < R '/login'
       include Encrypt
         def get
-            session = env['java.servlet_request'].session true
-            session['user_login'] = @user
+            @session['user_login'] = @user
             @user ||= User.new 'guest'
             @title = 'login'
             @scripts << "validate.js" << "dom.js" << "httpclient.js"
@@ -182,7 +179,6 @@ module Board::Controllers
         def post
             @login = true
 
-            session = env['java.servlet_request'].session true
             if @facade.validate_user( @input.login, encrypt( @input.password ) )
                 member = @facade.get_user @input.login
                 @user = User.new member.name
@@ -207,14 +203,13 @@ module Board::Controllers
             render :login
         ensure 
            @user.clear_errors
-           session['user_login'] = @user
+           @session['user_login'] = @user
         end
     end
 
     class LogoutUser < R '/logout'
         def get
-            session = env['java.servlet_request'].session true
-            session['user_login'] = User.new 'guest'
+            @session['user_login'] = User.new 'guest'
             @state.clear
             redirect("./board")
         end
@@ -239,8 +234,7 @@ module Board::Controllers
           @user.uid = member.get_id
           @state.user_name = member.name
 
-          session = env['java.servlet_request'].session true
-          session['user_login'] = @user
+          @session['user_login'] = @user
              
           @scripts << 'validate.js' << 'httpclient.js'
           render :reset_password
@@ -326,7 +320,6 @@ END_OF_BODY
       end
      def post
         @login = true
-        session = env['java.servlet_request'].session true
         @board = @facade.get_board
         
         @user = User.new 'guest'
@@ -347,7 +340,7 @@ END_OF_BODY
         end
         
         if @user.errors.any?
-           session['user_login'] = @user
+           @session['user_login'] = @user
            return render :register
         end
         member = Member.new
@@ -363,7 +356,7 @@ END_OF_BODY
            member.reg_code = reg_code
         end
         @facade.persist member
-        session['user_login'] = User.new @input.username
+        @session['user_login'] = User.new @input.username
         if member.state == 'validating'
            begin
               if  @board.properties['smtp_host']
@@ -756,8 +749,7 @@ END_OF_BODY
         
         user_login = decrypt( reg_key ).strip
 
-        session = env['java.servlet_request'].session true
-        session['user_login'] = @user
+        @session['user_login'] = @user
 
         @board = @facade.get_board
         @facade.begin_tx
@@ -771,6 +763,7 @@ END_OF_BODY
   end
   class ViewBoard < R '/board'
      def get
+        puts "ViewBoard"
         @login_name = @user.login
         
         @board = @facade.get_board
@@ -1296,8 +1289,7 @@ END_OF_BODY
       @member ||= @facade.getUser( 'admin' )
       
       @login_name = @member.name
-      session = env['java.servlet_request'].session true
-      @message ||= "Session['message']: #{session['message']}"
+      @message ||= "Session['message']: #{@session['message']}"
       
       @snoop = {}
       @snoop[:env] = env
@@ -1306,14 +1298,16 @@ END_OF_BODY
     end
   end
 
-=begin
-    class CStatic < R '/static/(.+)'
-        def get(path)
-            @headers['Content-Type'] = Board::MIME_TYPES[path[/\.\w+$/, 0]] || "text/plain"
-            @headers['X-Sendfile'] = File.join(Board::STATIC_PATH, path)
-        end
+  # It's not very efficient to serve static file like this, but it's OK for testing.
+  # In production plan to let the app server/web server do the work.
+   class Static < R '/(styles/.+)', '/(scripts/.+)', '/(images/.+)'
+      def get(path)
+         @headers['Content-Type'] = Board::MIME_TYPES[path[/\.\w+$/, 0]] || "text/plain"
+         name = File.join(Board::STATIC_PATH, path)
+         File.open( name ) { |f| f.gets( nil )}
+      end
     end
-=end
+=begin
    class Style < R '/styles.css'
        def get
            @headers["Content-Type"] = "text/css; charset=utf-8"
@@ -1322,5 +1316,5 @@ END_OF_BODY
            }
        end
    end
-
+=end
 end
