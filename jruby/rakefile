@@ -25,6 +25,29 @@ task :war do
   sh "jruby -S warble"
 end
 
+task :glassfish do
+   lib_files = FileList["../java/lib/*.jar"]
+   lib_files += FileList["../java/dist/lib/jboard.jar"]
+   lib_files += FileList["lib/*.rb"]
+   lib_files += FileList["properties/*.properties"]
+   lib_files.delete_if {|f| f =~ /junit/}
+      
+   mkdir_p %w{ jboard-gf/lib jboard-gf/scripts jboard-gf/styles jboard-gf/images jboard-gf/log jboard-gf/config jboard-gf/tmp}
+   lib_files.each do |f|
+      cp "#{f}", "jboard-gf/lib"
+   end   
+   cp_r "scripts/.", "jboard-gf/scripts"
+   cp_r "styles/.",  "jboard-gf/styles"
+   cp_r "images/.",  "jboard-gf/images"
+   cp_r "board.yaml",            "jboard-gf"
+   cp_r "../glassfish/.",        "jboard-gf"
+   cp_r "../glassfish/config/.", "jboard-gf/config"
+   cp_r "../glassfish/log/.",    "jboard-gf/log"
+   cp_r "../glassfish/tmp/.",    "jboard-gf/tmp"
+   sh "tar cvjf jboard-gf.tar.bz2 jboard-gf/"
+
+end
+
 task :copy do
    puts "deploy:\n"
    rmtree "#{CATALINA_HOME}/webapps/jboard"
