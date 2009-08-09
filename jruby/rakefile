@@ -44,6 +44,7 @@ task :glassfish do
    cp_r "../glassfish/config/.", "jboard-gf/config"
    cp_r "../glassfish/log/.",    "jboard-gf/log"
    cp_r "../glassfish/tmp/.",    "jboard-gf/tmp"
+   rm "jboard-gf.tar.bz2"
    sh "tar cvjf jboard-gf.tar.bz2 jboard-gf/"
 
 end
