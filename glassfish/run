@@ -1,0 +1,16 @@
+export GFAPP_HOME=.
+export CLASSPATH=$GFAPP_HOME/lib/jboard.jar
+export CLASSPATH=$CLASSPATH:$GFAPP_HOME/lib/.
+export CLASSPATH=$CLASSPATH:$GFAPP_HOME/lib/openjpa-1.2.1.jar
+export CLASSPATH=$CLASSPATH:$GFAPP_HOME/lib/geronimo-jpa_3.0_spec-1.0.jar
+export CLASSPATH=$CLASSPATH:$GFAPP_HOME/lib/geronimo-jta_1.1_spec-1.1.jar
+export CLASSPATH=$CLASSPATH:$GFAPP_HOME/lib/log4j-1.2.15.jar
+export CLASSPATH=$CLASSPATH:$GFAPP_HOME/lib/picocontainer-2.8.2.jar
+export CLASSPATH=$CLASSPATH:$GFAPP_HOME/lib/commons-collections-3.2.jar
+export CLASSPATH=$CLASSPATH:$GFAPP_HOME/lib/commons-lang-2.1.jar
+export CLASSPATH=$CLASSPATH:$GFAPP_HOME/lib/commons-pool-1.3.jar
+export CLASSPATH=$CLASSPATH:$GFAPP_HOME/lib/serp-1.13.1.jar
+export CLASSPATH=$CLASSPATH:$GFAPP_HOME/lib/derby-10.5.1.1.jar
+export CLASSPATH=$CLASSPATH:$GFAPP_HOME/lib/commons-dbcp-1.2.2.jar
+echo $CLASSPATH
+jruby -S glassfish
