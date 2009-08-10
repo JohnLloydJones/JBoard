@@ -6,11 +6,11 @@ module GlassfishAdapter
       cookies = Camping.kp(env['HTTP_COOKIE'])
       env['rack.url_scheme'] = 'http' # required by rack spec., but not defined by glassfish gem
       
-      servlet = GlassfishAdapter::Servlet.new cookies['rsessionid']
+      servlet = GlassfishAdapter::Servlet.new cookies['rsession_id']
       servlet.request_url = "#{env['rack.url_scheme']}://#{env['HTTP_HOST']}#{env['PATH_INFO']}"
       env['java.servlet_request'] = servlet
-      env['rsessionid'] = servlet.session_id
-      servlet.session true
+      env['rsession_id'] = servlet.session_id
+      session = servlet.session true    
    end
    
    # Servlet class is a partial replacement for HttpServletRequest. It's main task is to create
@@ -75,14 +75,15 @@ module GlassfishAdapter
       @@last_tick = Time.now.to_i / 10
       @@store = {}
       
-      def initialize
+      def initialize id
+         @id = id
          @attributes = {}
          @expires = Time.now.to_i + @@SESSION_TIMEOUT
       end
       
       def self.fetch( id, create )
          sweep if @@last_tick != Time.now.to_i / 10
-         @@store[id] ||= Session.new if create
+         @@store[id] ||= Session.new( id ) if create
          @@store[id]
       end
       
@@ -100,5 +101,8 @@ module GlassfishAdapter
          @attributes[key] = value
       end
 
+      def get_id
+         @id
+      end
    end
 end

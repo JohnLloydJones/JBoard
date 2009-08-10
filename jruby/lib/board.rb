@@ -45,7 +45,8 @@ module UserSession
         @state.errors, @state.next_errors = @state.next_errors || [], nil
         @session['state'] = @state
         @headers['Content-Type'] = 'text/html; charset=utf-8'
-        @cookies['rsessionid'] = env['rsessionid'] if env['rsessionid']
+        # save the session id in a cookie, but only if we are handling session ourselves
+        @cookies['rsession_id'] = env['board.session'].get_id if env['board.session']
         @facade = Facade.get_instance @user.login
         begin
            super(*a)
@@ -59,16 +60,7 @@ end
 Markaby::XHTMLTransitional.tagset[:th] += [:width, :height, :bgcolor]
 Markaby::XHTMLTransitional.doctype = ["-//W3C//DTD XHTML 1.0 Transitional//EN",
                                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"]
-=begin
-# This ensure that the doctype gets emitted properly -- not needed for Comping 0.50.180
-class Markaby::Builder
-   def xhtml_html(&block)
-      instruct! if @output_xml_instruction
-      declare!(:DOCTYPE, :html, :PUBLIC, *tagset.doctype)
-      @streams.last.to_s + tag!(:html, :xmlns => "http://www.w3.org/1999/xhtml", "xml:lang" => "en", :lang => "en", &block)
-   end
-end
-=end
+                                      
 # ... and turn off the <?XML tag -- that hurts IE -- and emit readable html while debugging
 Markaby::Builder.set(:output_xml_instruction, false)
 Markaby::Builder.set(:indent, 3)
